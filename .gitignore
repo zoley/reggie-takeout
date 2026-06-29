@@ -1,0 +1,16 @@
+.DS_Store
+.idea/
+*.iml
+
+# Java / Maven
+target/
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+
+# Logs and local environment
+*.log
+.env
+.env.*

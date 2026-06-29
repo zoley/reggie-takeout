@@ -1,0 +1,18 @@
+package com.zoley.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.zoley.entity.Employee;
+import org.apache.ibatis.annotations.Mapper;
+
+/**
+ * 类 名: EmployeeMapper
+ * 描 述:
+ * 作 者: 主成睿
+ * 创 建：2026年06月15日
+ * 版 本：v1.0.0
+ * <p>
+ * 历 史: (版本) 作者 时间 注释
+ */
+@Mapper
+public interface EmployeeMapper extends BaseMapper<Employee> {
+}
