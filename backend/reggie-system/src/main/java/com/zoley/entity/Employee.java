@@ -3,9 +3,9 @@ package com.zoley.entity;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 /**
@@ -34,6 +34,7 @@ public class Employee {
   /**
    * 密码（MD5加密存储）
    */
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   private String password;
 
   /**
