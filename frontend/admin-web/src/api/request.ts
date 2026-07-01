@@ -2,11 +2,12 @@
 import axios from "axios";
 import { ElMessage } from "element-plus";
 import {BASE_PATH} from "@/utils";
+import router from "@/router";
 
 // 创建 axios 实例
 const request = axios.create({
   baseURL: BASE_PATH,
-  timeout: 10000,
+  timeout: 1000000,
 });
 
 // 请求拦截器：自动附加 token
@@ -27,6 +28,12 @@ request.interceptors.response.use(
     const res = response.data;
     if (res.code !== undefined && res.code !== 200) {
       ElMessage.error(res.msg || "请求失败");
+      if(res.code === 401){
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+        router.replace("/login");
+        return;
+      }
       return Promise.reject(new Error(res.msg || "请求失败"));
     }
     return res;

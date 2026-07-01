@@ -57,22 +57,22 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem("token");
-  if (to.path === "/login") {
-    if (token) {
-      next("/employee");
-    } else {
-      next();
-    }
-  } else {
-    if (token) {
-      next();
-    } else {
-      next("/login");
-    }
-  }
-});
+// router.beforeEach((to, from, next) => {
+//   const token = sessionStorage.getItem("token");
+//   if (to.path === "/login") {
+//     if (token) {
+//       next("/employee");
+//     } else {
+//       next();
+//     }
+//   } else {
+//     if (token) {
+//       next();
+//     } else {
+//       next("/login");
+//     }
+//   }
+// });
 
 router.afterEach((to) => {
   document.title = to.meta?.title ? `${to.meta.title} - 瑞吉外卖` : "瑞吉外卖";

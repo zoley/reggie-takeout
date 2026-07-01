@@ -3,7 +3,7 @@ import request from "./request";
 
 /** 分页查询员工 */
 export function listEmployeeByPage(data: any) {
-  return request.post("/employee/page", data);
+  return request.post("/employee/listByPage", data);
 }
 
 /** 根据 ID 查询员工 */

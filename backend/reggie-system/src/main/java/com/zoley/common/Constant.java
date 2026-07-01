@@ -11,6 +11,6 @@ package com.zoley.common;
  */
 public interface Constant {
   String[] AuthExcludePaths = {
-    "/employee/login",
+    "/api/v1/employee/login",
   };
 }

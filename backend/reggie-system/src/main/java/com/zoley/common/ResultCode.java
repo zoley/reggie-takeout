@@ -1,5 +1,7 @@
 package com.zoley.common;
 
+import lombok.Getter;
+
 /**
  * 类 名: ResultCode
  * 描 述:
@@ -9,6 +11,7 @@ package com.zoley.common;
  * <p>
  * 历 史: (版本) 作者 时间 注释
  */
+@Getter
 public enum ResultCode {
   SUCCESS(200, "操作成功"),
   FAIL(500, "操作失败"),
@@ -22,11 +25,4 @@ public enum ResultCode {
     this.msg = msg;
   }
 
-  public int getCode() {
-    return code;
-  }
-
-  public String getMsg() {
-    return msg;
-  }
 }

@@ -67,7 +67,7 @@ import { ref, reactive } from "vue";
 import { ElMessage } from "element-plus";
 import {Food, User,Lock} from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
-import { login } from "../../api/auth";
+import { login } from "@/api/auth";
 
 const router = useRouter();
 const formRef = ref();
@@ -95,8 +95,8 @@ async function handleLogin() {
   login(formData)
     .then((res: any) => {
       if (res?.code === 200) {
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data));
+        sessionStorage.setItem("token", res.data.id);
+        sessionStorage.setItem("user", JSON.stringify(res.data));
         ElMessage.success("登录成功");
         router.push("/employee");
       }
