@@ -1,17 +1,18 @@
 // axios 请求封装
 import axios from "axios";
 import { ElMessage } from "element-plus";
+import {BASE_PATH} from "@/utils";
 
 // 创建 axios 实例
 const request = axios.create({
-  baseURL: "/api",
+  baseURL: BASE_PATH,
   timeout: 10000,
 });
 
 // 请求拦截器：自动附加 token
 request.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

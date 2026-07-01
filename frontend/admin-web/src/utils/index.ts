@@ -1,7 +1,7 @@
 /**
  * 通用工具函数
  */
-
+export const BASE_PATH="/api/v1"
 /** 格式化日期 */
 export function formatDate(date: string | number | Date, fmt = "YYYY-MM-DD HH:mm:ss") {
   if (!date) return "";

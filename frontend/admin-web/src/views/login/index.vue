@@ -19,12 +19,12 @@
           :rules="formRules"
           class="login-form"
         >
-          <el-form-item prop="username">
+          <el-form-item prop="userName">
             <el-input
-              v-model="formData.username"
+              v-model="formData.userName"
               placeholder="请输入用户名"
               size="large"
-              prefix-icon="User"
+              :prefix-icon="User"
               autocomplete="off"
             />
           </el-form-item>
@@ -35,7 +35,7 @@
               type="password"
               placeholder="请输入密码"
               size="large"
-              prefix-icon="Lock"
+              :prefix-icon="Lock"
               :show-password="showPassword"
               @click-password="showPassword = !showPassword"
             />
@@ -65,7 +65,7 @@
 <script setup lang="ts">
 import { ref, reactive } from "vue";
 import { ElMessage } from "element-plus";
-import { Food } from "@element-plus/icons-vue";
+import {Food, User,Lock} from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import { login } from "../../api/auth";
 
@@ -75,12 +75,12 @@ const loading = ref(false);
 const showPassword = ref(false);
 
 const formData = reactive({
-  username: "",
+  userName: "",
   password: "",
 });
 
 const formRules = {
-  username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
+  userName: [{ required: true, message: "请输入用户名", trigger: "blur" }],
   password: [{ required: true, message: "请输入密码", trigger: "blur" }],
 };
 
@@ -115,7 +115,7 @@ async function handleLogin() {
   position: relative;
   min-height: 100vh;
   overflow: hidden;
-  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+  background: linear-gradient(135deg, #fff 0%, #ff8e53 100%);
 }
 
 .login-bg {

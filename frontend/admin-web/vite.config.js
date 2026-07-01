@@ -4,6 +4,7 @@ import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import { resolve } from "path";
+import {BASE_PATH} from "./src/utils/index.ts";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -25,7 +26,7 @@ export default defineConfig({
   server: {
     port: 9501,
     proxy: {
-      "/api": {
+      [BASE_PATH]: {
         target: "http://localhost:9530",
         changeOrigin: true,
         // rewrite: (path) => path.replace(/^\/api/, ""),
