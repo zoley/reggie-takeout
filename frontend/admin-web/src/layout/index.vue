@@ -82,6 +82,7 @@ const activeMenu = computed(() => route.path);
 const currentPageTitle = computed(() => route.meta?.title || "后台管理");
 
 const handleLogout = () => {
+  sessionStorage.clear();
   localStorage.removeItem("token");
   localStorage.removeItem("user");
   router.push("/login");

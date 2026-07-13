@@ -2,8 +2,12 @@ package com.zoley.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -20,6 +24,7 @@ import java.time.LocalDateTime;
 @TableName("employee")
 @Data
 public class Employee {
+  @JsonFormat(shape = JsonFormat.Shape.STRING)
   private Long id;
   /**
    * 姓名
@@ -61,12 +66,14 @@ public class Employee {
     * 创建时间（插入时自动填充）
     */
    @TableField(fill = FieldFill.INSERT)
+   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "Asia/Shanghai")
    private LocalDateTime createTime;
 
    /**
     * 更新时间（插入、更新时自动填充）
     */
    @TableField(fill = FieldFill.INSERT_UPDATE)
+   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "Asia/Shanghai")
    private LocalDateTime updateTime;
 
    /**
@@ -80,4 +87,11 @@ public class Employee {
     */
    @TableField(fill = FieldFill.INSERT_UPDATE)
    private Long updateUser;
+
+   /**
+    * 删除标志  0:未删除 1:已删除
+    */
+   // @TableLogic(value="0",delval="1")
+   @TableField(fill = FieldFill.INSERT)
+   private Integer deleted;
 }

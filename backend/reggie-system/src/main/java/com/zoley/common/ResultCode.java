@@ -15,8 +15,8 @@ import lombok.Getter;
 public enum ResultCode {
   SUCCESS(200, "操作成功"),
   FAIL(500, "操作失败"),
-  UNAUTHORIZED(401, "未授权"),
-  FORBIDDEN(403, "禁止访问");
+  UNAUTHORIZED(401, "token校验失败、或过期"),
+  FORBIDDEN(403, "无权限，请联系管理员");
   private final int code;
   private final String msg;
 

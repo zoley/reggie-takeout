@@ -1,6 +1,7 @@
 package com.zoley.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zoley.common.BaseContext;
 import com.zoley.common.Result;
 import com.zoley.common.ResultCode;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +30,8 @@ public class AuthInterceptor implements HandlerInterceptor {
       response.getWriter().write(new ObjectMapper().writeValueAsString(error));
       return false;
     }
+    Long currentId =Long.parseLong(auth.substring("Bearer ".length()).trim());
+    BaseContext.setCurrentId(currentId);
     System.out.println("token = " + auth);
     return true;
   }
