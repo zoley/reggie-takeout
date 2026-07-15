@@ -1,4 +1,4 @@
-package com.zoley.common;
+package com.zoley.common.result;
 
 import lombok.Getter;
 
@@ -13,9 +13,9 @@ import lombok.Getter;
  */
 @Getter
 public class Result<T> {
-  private Integer code;
-  private String msg;
-  private T data;
+  private final Integer code;
+  private final String msg;
+  private final T data;
 
   private Result(Integer code, String msg, T data) {
     this.code = code;
@@ -24,27 +24,27 @@ public class Result<T> {
   }
 
   public static <T> Result<T> success() {
-    return build(ResultCode.SUCCESS, null);
+    return build(ResultCode.CODE_200, null);
   }
 
   public static <T> Result<T> success(String msg) {
-    return build(ResultCode.SUCCESS.getCode(), msg, null);
+    return build(ResultCode.CODE_200.getCode(), msg, null);
   }
 
   public static <T> Result<T> success(T data) {
-    return build(ResultCode.SUCCESS, data);
+    return build(ResultCode.CODE_200, data);
   }
 
   public static <T> Result<T> success(String msg, T data) {
-    return build(ResultCode.SUCCESS.getCode(), msg, data);
+    return build(ResultCode.CODE_200.getCode(), msg, data);
   }
 
   public static <T> Result<T> error() {
-    return build(ResultCode.FAIL, null);
+    return build(ResultCode.CODE_500, null);
   }
 
   public static <T> Result<T> error(String msg) {
-    return build(ResultCode.FAIL.getCode(), msg, null);
+    return build(ResultCode.CODE_500.getCode(), msg, null);
   }
 
   public static <T> Result<T> error(ResultCode resultCode) {

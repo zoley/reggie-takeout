@@ -1,7 +1,7 @@
 package com.zoley.handler;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.zoley.common.BaseContext;
+import com.zoley.common.context.BaseContext;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
      this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
      this.strictInsertFill(metaObject, "createUser", Long.class, BaseContext.getCurrentId());   // 临时填充为1，实际应从登录用户获取
      this.strictInsertFill(metaObject, "updateUser", Long.class, BaseContext.getCurrentId());
+     this.strictInsertFill(metaObject, "deleted", Integer.class, 0);
    }
 
    @Override

@@ -1,6 +1,4 @@
-package com.zoley.common;
-
-import com.zoley.entity.Employee;
+package com.zoley.common.context;
 
 /**
  * 类 名: BaseContext

@@ -34,7 +34,7 @@ request.interceptors.response.use(
         router.replace("/login");
         return;
       }
-      return Promise.reject(new Error(res.msg || "请求失败"));
+      return console.error(res.msg || "请求失败");
     }
     return res;
   },

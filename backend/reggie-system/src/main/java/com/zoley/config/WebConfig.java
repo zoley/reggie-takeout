@@ -1,6 +1,6 @@
 package com.zoley.config;
 
-import com.zoley.common.Constant;
+import com.zoley.common.constant.Constant;
 import com.zoley.handler.AuthInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -25,6 +25,6 @@ public class WebConfig implements WebMvcConfigurer {
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
-    registry.addInterceptor(authInterceptor).addPathPatterns("/**").excludePathPatterns(Constant.AuthExcludePaths);
+    registry.addInterceptor(authInterceptor).addPathPatterns("/**").excludePathPatterns(Constant.AUTH_EXCLUDE_PATHS);
   }
 }

@@ -1,21 +1,21 @@
 package com.zoley.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zoley.common.Result;
+import com.zoley.common.result.Result;
+import com.zoley.common.utils.CodeUtils;
 import com.zoley.entity.Employee;
 import com.zoley.entity.EmployeeSearch;
-import com.zoley.entity.PaginationDTO;
 import com.zoley.service.EmployeeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 import java.util.List;
+import static com.zoley.common.constant.Constant.BASE_PATH;
 
-import static com.zoley.common.Utils.BASE_PATH;
 
 /**
  * 类 名: EmployeeController
@@ -26,11 +26,11 @@ import static com.zoley.common.Utils.BASE_PATH;
  * <p>
  * 历 史: (版本) 作者 时间 注释
  */
+@Slf4j
 @RestController
 @RequestMapping(BASE_PATH + "/employee")
 public class EmployeeController {
   private final EmployeeService employeeService;
-
   public EmployeeController(EmployeeService employeeService) {
     this.employeeService = employeeService;
   }
@@ -92,8 +92,11 @@ public class EmployeeController {
    * @param employee 员工信息
    * @return 创建成功后的员工信息
    */
+
   @PostMapping("/create")
-  public Result<Employee> create(@RequestBody Employee employee) {
+  public Result<Employee> create(@Validated @RequestBody Employee employee) {
+    String code = CodeUtils.codeGenerate();
+    log.info("创建员工ID: {}", code);
     String newPassword = DigestUtils.md5DigestAsHex(employee.getPassword().getBytes());
     employee.setPassword(newPassword);
     boolean isOk = employeeService.save(employee);
@@ -101,6 +104,7 @@ public class EmployeeController {
       return Result.success("创建成功", employee);
     }
     return Result.error("创建失败");
+
   }
 
   @PostMapping("/update")

@@ -1,9 +1,9 @@
 package com.zoley.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zoley.common.BaseContext;
-import com.zoley.common.Result;
-import com.zoley.common.ResultCode;
+import com.zoley.common.context.BaseContext;
+import com.zoley.common.result.Result;
+import com.zoley.common.result.ResultCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
@@ -26,7 +26,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     if (auth == null || !auth.startsWith("Bearer ")) {
       // response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.setContentType("application/json;charset=utf-8");
-      Result<Object> error = Result.error(ResultCode.UNAUTHORIZED);
+      Result<Object> error = Result.error(ResultCode.CODE_401);
       response.getWriter().write(new ObjectMapper().writeValueAsString(error));
       return false;
     }
