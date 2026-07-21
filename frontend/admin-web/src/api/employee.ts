@@ -30,9 +30,12 @@ export function disabledEmployeeStatus(params: Record<string, any>) {
   return request.get(`/employee/disabledStatus`, { params });
 }
 
-/** 删除员工 */
+/** 批量删除员工 */
 export function deleteBatchEmployee(data:string[]) {
-  return request.delete(`/employee/batchDelete`,{data});
+  return request.post(`/employee/batchDelete`,data);
+}
+export function deleteEmployeeById(id:string) {
+  return request.delete(`/employee/delete/${id}`);
 }
 
 /** 重置员工密码 */

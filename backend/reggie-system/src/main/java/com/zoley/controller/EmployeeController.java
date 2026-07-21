@@ -143,7 +143,7 @@ public class EmployeeController {
     return Result.error("禁用员工失败");
   }
 
-  @DeleteMapping("/batchDelete")
+  @PostMapping("/batchDelete")
   public Result<Employee> deleteBatch(@RequestBody List<Long> ids) {
     boolean isOk = employeeService.removeByIds(ids);
     if (isOk) {
@@ -152,6 +152,14 @@ public class EmployeeController {
     return Result.error("删除失败");
   }
 
+  @DeleteMapping("/delete/{id}")
+  public Result<Employee> delete(@PathVariable Long id) {
+    boolean isOk = employeeService.removeById(id);
+    if (isOk) {
+      return Result.success("删除成功");
+    }
+    return Result.error("删除失败");
+  }
 
 
 

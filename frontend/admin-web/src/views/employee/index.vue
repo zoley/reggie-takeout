@@ -189,7 +189,7 @@ import {
   updateEmployee,
   enabledEmployeeStatus, disabledEmployeeStatus,
   resetEmployeePassword,
-  deleteEmployee, deleteBatchEmployee,
+  deleteEmployee, deleteBatchEmployee, deleteEmployeeById,
 } from "@/api/employee";
 
 const loading = ref(false);
@@ -353,7 +353,7 @@ function handleDelete(row: Record<string, any>) {
     cancelButtonText: "取消",
     type: "warning",
   }).then(() => {
-    deleteBatchEmployee([row.id]).then((res: any) => {
+    deleteEmployeeById(row.id).then((res: any) => {
       if (res?.code === 200) {
         ElMessage.success("删除成功");
         handleSearch();
