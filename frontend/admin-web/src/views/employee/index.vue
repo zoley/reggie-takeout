@@ -1,76 +1,109 @@
 <template>
   <div class="page-container">
     <!-- 搜索栏 -->
-    <div class="search-toolbar">
-      <div class="toolbar-item">
-        <label>姓名：</label>
-        <el-input
-          v-model="searchForm.name"
-          placeholder="请输入姓名"
-          clearable
-          style="width: 200px"
+    <div class="filter-card">
+      <div class="filter-row">
+        <div class="filter-item">
+          <span class="filter-label">姓名</span>
+          <el-input
+            v-model="searchForm.name"
+            placeholder="请输入姓名"
+            clearable
+            style="width: 200px"
+          />
+        </div>
+        <div class="filter-actions">
+          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button @click="resetSearch">重置</el-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 表格区域 -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">员工列表</span>
+        <el-button type="primary" @click="handleAdd">
+          <el-icon style="margin-right: 4px"><Plus /></el-icon>新增员工
+        </el-button>
+      </div>
+
+      <el-table
+        :data="tableData"
+        stripe
+        v-loading="loading"
+        style="width: 100%"
+        :header-cell-style="{
+          background: '#fafafa',
+          color: '#333',
+          fontWeight: 600,
+        }"
+      >
+        <el-table-column prop="name" label="姓名" min-width="100" />
+        <el-table-column prop="userName" label="用户名" min-width="110" />
+        <el-table-column prop="phone" label="手机号" width="130" />
+        <el-table-column prop="idNumber" label="身份证号" width="180" />
+        <el-table-column prop="sex" label="性别" width="80" align="center">
+          <template #default="{ row }">
+            {{ row.sex === "1" ? "男" : row.sex === "0" ? "女" : "-" }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="status"
+          label="账号状态"
+          width="100"
+          align="center"
+        >
+          <template #default="{ row }">
+            <el-switch
+              v-model="row.status"
+              :active-value="1"
+              :inactive-value="0"
+              @change="(val) => handleStatusChange(row, val)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="updateTime"
+          label="最后操作时间"
+          min-width="170"
+        />
+        <el-table-column label="操作" width="220" fixed="right" align="center">
+          <template #default="{ row }">
+            <el-button type="primary" size="small" link @click="handleEdit(row)"
+              >编辑</el-button
+            >
+            <el-button
+              type="warning"
+              size="small"
+              link
+              @click="handleResetPwd(row)"
+              >重置密码</el-button
+            >
+            <el-button
+              type="danger"
+              size="small"
+              link
+              @click="handleDelete(row)"
+              >删除</el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页 -->
+      <div class="pagination-bar">
+        <el-pagination
+          v-model:current-page="pager.page"
+          v-model:page-size="pager.pageSize"
+          :total="total"
+          :page-sizes="[5, 10, 20]"
+          layout="total, sizes, prev, pager, next, jumper"
+          background
+          @size-change="handleSearch"
+          @current-change="handleSearch"
         />
       </div>
-      <el-button type="primary" @click="handleSearch">搜索</el-button>
-      <el-button @click="resetSearch">重置</el-button>
-    </div>
-
-    <!-- 操作栏 -->
-    <div class="action-bar">
-      <el-button type="primary" @click="handleAdd">+ 新增员工</el-button>
-    </div>
-
-    <!-- 数据表格 -->
-    <el-table :data="tableData" border stripe v-loading="loading">
-      <el-table-column prop="name" label="姓名" min-width="120"/>
-      <el-table-column prop="userName" label="用户名" min-width="120"/>
-      <el-table-column prop="phone" label="手机号" width="130"/>
-      <el-table-column prop="idNumber" label="身份证号" width="180"/>
-      <el-table-column prop="sex" label="性别" width="80">
-        <template #default="{ row }">
-          {{ row.sex === "1" ? "男" : row.sex === "0" ? "女" : "-" }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="status" label="账号状态" width="100">
-        <template #default="{ row }">
-          <el-switch
-            v-model="row.status"
-            :active-value="1"
-            :inactive-value="0"
-            @change="(val) => handleStatusChange(row, val)"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column prop="updateTime" label="最后操作时间" width="180"/>
-      <el-table-column label="操作" width="240" fixed="right">
-        <template #default="{ row }">
-          <el-button type="primary" size="small" link @click="handleEdit(row)"
-          >编辑
-          </el-button
-          >
-          <el-button type="warning" size="small" link @click="handleResetPwd(row)"
-          >重置密码
-          </el-button
-          >
-          <el-button type="danger" size="small" link @click="handleDelete(row)"
-          >删除
-          </el-button
-          >
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <!-- 分页 -->
-    <div class="pagination-bar">
-      <el-pagination
-        v-model:current-page="pager.page"
-        v-model:page-size="pager.pageSize"
-        :total="total"
-        :page-sizes="[5, 10, 20]"
-        layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSearch"
-        @current-change="handleSearch"
-      />
     </div>
 
     <!-- 新增/编辑弹窗 -->
@@ -104,7 +137,7 @@
           />
         </el-form-item>
         <el-form-item label="姓名" prop="name">
-          <el-input v-model="formData.name" placeholder="请输入姓名"/>
+          <el-input v-model="formData.name" placeholder="请输入姓名" />
         </el-form-item>
         <el-form-item label="手机号" prop="phone">
           <el-input
@@ -148,10 +181,10 @@
         label-width="100px"
       >
         <el-form-item label="姓名">
-          <el-input v-model="resetPwdData.name" disabled/>
+          <el-input v-model="resetPwdData.name" disabled />
         </el-form-item>
         <el-form-item label="账号">
-          <el-input v-model="resetPwdData.userName" disabled/>
+          <el-input v-model="resetPwdData.userName" disabled />
         </el-form-item>
         <el-form-item label="新密码" prop="newPassword">
           <el-input
@@ -181,15 +214,19 @@
 </template>
 
 <script setup lang="ts">
-import {ElMessage, ElMessageBox} from "element-plus";
-import {ref, reactive, onMounted} from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { Plus } from "@element-plus/icons-vue";
+import { ref, reactive, onMounted } from "vue";
 import {
   listEmployeeByPage,
   createEmployee,
   updateEmployee,
-  enabledEmployeeStatus, disabledEmployeeStatus,
+  enabledEmployeeStatus,
+  disabledEmployeeStatus,
   resetEmployeePassword,
-  deleteEmployee, deleteBatchEmployee, deleteEmployeeById,
+  deleteEmployee,
+  deleteBatchEmployee,
+  deleteEmployeeById,
 } from "@/api/employee";
 
 const loading = ref(false);
@@ -198,8 +235,8 @@ const total = ref(0);
 const dialogVisible = ref(false);
 const formRef = ref();
 
-const pager = reactive({page: 1, pageSize: 10});
-const searchForm = reactive({name: ""});
+const pager = reactive({ page: 1, pageSize: 10 });
+const searchForm = reactive({ name: "" });
 const formData = reactive<Record<string, any>>({});
 
 const resetPwdVisible = ref(false);
@@ -213,9 +250,9 @@ const resetPwdData = reactive({
 });
 
 const formRules = {
-  userName: [{required: true, message: "请输入用户名", trigger: "blur"}],
-  password: [{required: true, message: "请输入密码", trigger: "blur"}],
-  name: [{required: true, message: "请输入姓名", trigger: "blur"}],
+  userName: [{ required: true, message: "请输入用户名", trigger: "blur" }],
+  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+  name: [{ required: true, message: "请输入姓名", trigger: "blur" }],
   phone: [
     // { pattern: /^1[3-9]\d{9}$/, message: "手机号格式不正确", trigger: "blur" ,},
   ],
@@ -229,11 +266,9 @@ const formRules = {
 };
 
 const resetPwdRules = {
-  newPassword: [
-    {required: true, message: "请输入新密码", trigger: "blur"},
-  ],
+  newPassword: [{ required: true, message: "请输入新密码", trigger: "blur" }],
   confirmPassword: [
-    {required: true, message: "请再次输入新密码", trigger: "blur"},
+    { required: true, message: "请再次输入新密码", trigger: "blur" },
     {
       validator: (_rule: any, value: string, callback: Function) => {
         if (value !== resetPwdData.newPassword) {
@@ -250,7 +285,7 @@ const resetPwdRules = {
 /** 搜索 */
 function handleSearch() {
   loading.value = true;
-  listEmployeeByPage({...pager, ...searchForm})
+  listEmployeeByPage({ ...pager, ...searchForm })
     .then((res: any) => {
       if (res?.code === 200) {
         tableData.value = res.data?.records || [];
@@ -278,7 +313,7 @@ function handleAdd() {
 
 /** 编辑 */
 function handleEdit(row: Record<string, any>) {
-  Object.assign(formData, {...row});
+  Object.assign(formData, { ...row });
   dialogVisible.value = true;
 }
 
@@ -352,33 +387,77 @@ function handleDelete(row: Record<string, any>) {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning",
-  }).then(() => {
-    deleteEmployeeById(row.id).then((res: any) => {
-      if (res?.code === 200) {
-        ElMessage.success("删除成功");
-        handleSearch();
-      }
-    });
-  }).catch(() => {});
+  })
+    .then(() => {
+      deleteEmployeeById(row.id).then((res: any) => {
+        if (res?.code === 200) {
+          ElMessage.success("删除成功");
+          handleSearch();
+        }
+      });
+    })
+    .catch(() => {});
 }
 
 onMounted(() => handleSearch());
 </script>
 
 <style scoped>
-.search-toolbar {
+.filter-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px 24px 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.filter-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-label {
+  font-size: 14px;
+  color: #606266;
+  white-space: nowrap;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.table-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 16px;
 }
 
-.action-bar {
-  margin-bottom: 16px;
+.table-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
 }
 
 .pagination-bar {
-  margin-top: 16px;
+  margin-top: 20px;
   display: flex;
   justify-content: flex-end;
 }

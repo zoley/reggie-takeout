@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
@@ -23,11 +24,11 @@ import java.time.LocalDateTime;
  * <p>
  * 历 史: (版本) 作者 时间 注释
  */
+@EqualsAndHashCode(callSuper = true)
 @TableName("employee")
 @Data
-public class Employee {
-  @JsonFormat(shape = JsonFormat.Shape.STRING)
-  private Long id;
+public class Employee extends Base {
+
   /**
    * 姓名
    */
@@ -66,32 +67,6 @@ public class Employee {
    * 状态 0:禁用 1:正常
    */
   private Integer status;
-
-  /**
-   * 创建时间（插入时自动填充）
-   */
-  @TableField(fill = FieldFill.INSERT)
-  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
-  private LocalDateTime createTime;
-
-  /**
-   * 更新时间（插入、更新时自动填充）
-   */
-  @TableField(fill = FieldFill.INSERT_UPDATE)
-  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
-  private LocalDateTime updateTime;
-
-  /**
-   * 创建人ID（插入时自动填充）
-   */
-  @TableField(fill = FieldFill.INSERT)
-  private Long createUser;
-
-  /**
-   * 修改人ID（插入、更新时自动填充）
-   */
-  @TableField(fill = FieldFill.INSERT_UPDATE)
-  private Long updateUser;
 
   /**
    * 删除标志  0:未删除 1:已删除

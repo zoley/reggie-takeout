@@ -1,102 +1,144 @@
 <template>
   <div class="page-container">
     <!-- 搜索栏 -->
-    <div class="search-toolbar">
-      <div class="toolbar-item">
-        <label>订单号：</label>
-        <el-input
-          v-model="searchForm.number"
-          placeholder="请输入订单号"
-          clearable
-          style="width: 220px"
-        />
+    <div class="filter-card">
+      <div class="filter-row">
+        <div class="filter-item">
+          <span class="filter-label">订单号</span>
+          <el-input
+            v-model="searchForm.number"
+            placeholder="请输入订单号"
+            clearable
+            style="width: 200px"
+          />
+        </div>
+        <div class="filter-item">
+          <span class="filter-label">手机号</span>
+          <el-input
+            v-model="searchForm.phone"
+            placeholder="请输入收货人电话"
+            clearable
+            style="width: 160px"
+          />
+        </div>
+        <div class="filter-item">
+          <span class="filter-label">订单状态</span>
+          <el-select
+            v-model="searchForm.status"
+            placeholder="请选择"
+            clearable
+            style="width: 130px"
+          >
+            <el-option label="待付款" :value="1" />
+            <el-option label="待接单" :value="2" />
+            <el-option label="配送中" :value="3" />
+            <el-option label="已完成" :value="4" />
+            <el-option label="已取消" :value="5" />
+          </el-select>
+        </div>
+        <div class="filter-actions">
+          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button @click="resetSearch">重置</el-button>
+        </div>
       </div>
-      <div class="toolbar-item">
-        <label>手机号：</label>
-        <el-input
-          v-model="searchForm.phone"
-          placeholder="请输入收货人电话"
-          clearable
-          style="width: 180px"
-        />
-      </div>
-      <div class="toolbar-item">
-        <label>订单状态：</label>
-        <el-select
-          v-model="searchForm.status"
-          placeholder="请选择"
-          clearable
-          style="width: 130px"
-        >
-          <el-option label="待付款" :value="1" />
-          <el-option label="待接单" :value="2" />
-          <el-option label="配送中" :value="3" />
-          <el-option label="已完成" :value="4" />
-          <el-option label="已取消" :value="5" />
-        </el-select>
-      </div>
-      <el-button type="primary" @click="handleSearch">搜索</el-button>
-      <el-button @click="resetSearch">重置</el-button>
     </div>
 
-    <!-- 数据表格 -->
-    <el-table :data="tableData" border stripe v-loading="loading">
-      <el-table-column prop="number" label="订单号" min-width="180" />
-      <el-table-column prop="orderTime" label="下单时间" width="165" />
-      <el-table-column prop="status" label="订单状态" width="100">
-        <template #default="{ row }">
-          <el-tag :type="statusTagType(row.status)">{{
-            statusText(row.status)
-          }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="amount" label="订单金额" width="100">
-        <template #default="{ row }">¥{{ row.amount }}</template>
-      </el-table-column>
-      <el-table-column prop="consignee" label="收货人" width="90" />
-      <el-table-column prop="phone" label="联系电话" width="125" />
-      <el-table-column
-        prop="address"
-        label="地址"
-        min-width="180"
-        show-overflow-tooltip
-      />
-      <el-table-column label="操作" width="160" fixed="right">
-        <template #default="{ row }">
-          <el-button type="primary" size="small" link @click="handleDetail(row)"
-            >查看详情</el-button
-          >
-          <el-button
-            v-if="row.status === 3"
-            type="success"
-            size="small"
-            link
-            @click="handleComplete(row)"
-            >完成</el-button
-          >
-          <el-button
-            v-if="row.status <= 3"
-            type="danger"
-            size="small"
-            link
-            @click="handleCancel(row)"
-            >取消</el-button
-          >
-        </template>
-      </el-table-column>
-    </el-table>
+    <!-- 表格区域 -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">订单列表</span>
+      </div>
 
-    <!-- 分页 -->
-    <div class="pagination-bar">
-      <el-pagination
-        v-model:current-page="pager.page"
-        v-model:page-size="pager.pageSize"
-        :total="total"
-        :page-sizes="[5, 10, 20]"
-        layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSearch"
-        @current-change="handleSearch"
-      />
+      <el-table
+        :data="tableData"
+        stripe
+        v-loading="loading"
+        style="width: 100%"
+        :header-cell-style="{
+          background: '#fafafa',
+          color: '#333',
+          fontWeight: 600,
+        }"
+      >
+        <el-table-column prop="number" label="订单号" min-width="180" />
+        <el-table-column prop="orderTime" label="下单时间" min-width="165" />
+        <el-table-column
+          prop="status"
+          label="订单状态"
+          width="100"
+          align="center"
+        >
+          <template #default="{ row }">
+            <el-tag :type="statusTagType(row.status)" effect="light" round>
+              {{ statusText(row.status) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="amount"
+          label="订单金额"
+          width="110"
+          align="center"
+        >
+          <template #default="{ row }">
+            <span class="price-text">¥{{ row.amount }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="consignee"
+          label="收货人"
+          width="90"
+          align="center"
+        />
+        <el-table-column prop="phone" label="联系电话" width="125" />
+        <el-table-column
+          prop="address"
+          label="地址"
+          min-width="180"
+          show-overflow-tooltip
+        />
+        <el-table-column label="操作" width="180" fixed="right" align="center">
+          <template #default="{ row }">
+            <el-button
+              type="primary"
+              size="small"
+              link
+              @click="handleDetail(row)"
+              >详情</el-button
+            >
+            <el-button
+              v-if="row.status === 3"
+              type="success"
+              size="small"
+              link
+              @click="handleComplete(row)"
+              >完成</el-button
+            >
+            <el-button
+              v-if="row.status <= 3"
+              type="danger"
+              size="small"
+              link
+              @click="handleCancel(row)"
+              >取消</el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页 -->
+      <div class="pagination-bar">
+        <el-pagination
+          v-model:current-page="pager.page"
+          v-model:page-size="pager.pageSize"
+          :total="total"
+          :page-sizes="[5, 10, 20]"
+          layout="total, sizes, prev, pager, next, jumper"
+          background
+          @size-change="handleSearch"
+          @current-change="handleSearch"
+        />
+      </div>
     </div>
 
     <!-- 订单详情弹窗 -->
@@ -114,13 +156,13 @@
           detailData.orderTime
         }}</el-descriptions-item>
         <el-descriptions-item label="订单状态">
-          <el-tag :type="statusTagType(detailData.status)">{{
-            statusText(detailData.status)
-          }}</el-tag>
+          <el-tag :type="statusTagType(detailData.status)" effect="light" round>
+            {{ statusText(detailData.status) }}
+          </el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="订单金额"
-          >¥{{ detailData.amount }}</el-descriptions-item
-        >
+        <el-descriptions-item label="订单金额">
+          <span class="price-text">¥{{ detailData.amount }}</span>
+        </el-descriptions-item>
         <el-descriptions-item label="收货人">{{
           detailData.consignee
         }}</el-descriptions-item>
@@ -136,7 +178,16 @@
       </el-descriptions>
 
       <h4 style="margin: 16px 0 8px">订单明细</h4>
-      <el-table :data="detailData.orderDetails || []" border size="small">
+      <el-table
+        :data="detailData.orderDetails || []"
+        size="small"
+        stripe
+        :header-cell-style="{
+          background: '#fafafa',
+          color: '#333',
+          fontWeight: 600,
+        }"
+      >
         <el-table-column prop="name" label="名称" min-width="140" />
         <el-table-column prop="number" label="数量" width="70" />
         <el-table-column prop="amount" label="单价" width="80">
@@ -255,21 +306,67 @@ onMounted(() => handleSearch());
 </script>
 
 <style scoped>
-.search-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.filter-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px 24px 12px;
   margin-bottom: 16px;
-  flex-wrap: wrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
-.toolbar-item {
+
+.filter-row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-label {
+  font-size: 14px;
+  color: #606266;
+  white-space: nowrap;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.table-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.table-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+}
+
 .pagination-bar {
-  margin-top: 16px;
+  margin-top: 20px;
   display: flex;
   justify-content: flex-end;
+}
+
+.price-text {
+  color: #e6a23c;
+  font-weight: 600;
 }
 </style>

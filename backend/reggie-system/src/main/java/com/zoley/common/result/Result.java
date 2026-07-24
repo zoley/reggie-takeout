@@ -50,6 +50,9 @@ public class Result<T> {
   public static <T> Result<T> error(ResultCode resultCode) {
     return build(resultCode, null);
   }
+  public static <T> Result<T> error(ResultCode resultCode,String msg) {
+    return build(resultCode.getCode(), msg, null);
+  }
 
   private static <T> Result<T> build(ResultCode resultCode, T data) {
     return build(resultCode.getCode(), resultCode.getMsg(), data);

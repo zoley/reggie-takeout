@@ -1,121 +1,158 @@
 <template>
   <div class="page-container">
     <!-- 搜索栏 -->
-    <div class="search-toolbar">
-      <div class="toolbar-item">
-        <label>菜品名称：</label>
-        <el-input
-          v-model="searchForm.name"
-          placeholder="请输入菜品名称"
-          clearable
-          style="width: 220px"
+    <div class="filter-card">
+      <div class="filter-row">
+        <div class="filter-item">
+          <span class="filter-label">菜品名称</span>
+          <el-input
+            v-model="searchForm.name"
+            placeholder="请输入菜品名称"
+            clearable
+            style="width: 200px"
+          />
+        </div>
+        <div class="filter-item">
+          <span class="filter-label">菜品分类</span>
+          <el-select
+            v-model="searchForm.categoryId"
+            placeholder="请选择分类"
+            clearable
+            style="width: 160px"
+          >
+            <el-option
+              v-for="item in categoryList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
+        </div>
+        <div class="filter-item">
+          <span class="filter-label">售卖状态</span>
+          <el-select
+            v-model="searchForm.status"
+            placeholder="请选择"
+            clearable
+            style="width: 120px"
+          >
+            <el-option label="启售" :value="1" />
+            <el-option label="停售" :value="0" />
+          </el-select>
+        </div>
+        <div class="filter-actions">
+          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button @click="resetSearch">重置</el-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 表格区域 -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">菜品列表</span>
+        <div class="table-header-actions">
+          <el-button
+            type="danger"
+            plain
+            :disabled="!selectedIds.length"
+            @click="handleBatchDelete"
+            >批量删除</el-button
+          >
+          <el-button type="primary" @click="handleAdd">
+            <el-icon style="margin-right: 4px"><Plus /></el-icon>新增菜品
+          </el-button>
+        </div>
+      </div>
+
+      <el-table
+        :data="tableData"
+        stripe
+        v-loading="loading"
+        style="width: 100%"
+        :header-cell-style="{
+          background: '#fafafa',
+          color: '#333',
+          fontWeight: 600,
+        }"
+        @selection-change="(rows) => (selectedIds = rows.map((r: any) => r.id))"
+      >
+        <el-table-column type="selection" width="50" />
+        <el-table-column prop="name" label="菜品名称" min-width="140" />
+        <el-table-column label="图片" width="90" align="center">
+          <template #default="{ row }">
+            <el-image
+              v-if="row.image"
+              :src="row.image"
+              style="width: 50px; height: 50px; border-radius: 6px"
+              fit="cover"
+              :preview-src-list="[row.image]"
+            />
+            <span v-else class="text-muted">-</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="categoryName"
+          label="菜品分类"
+          width="120"
+          align="center"
+        />
+        <el-table-column prop="price" label="售价" width="100" align="center">
+          <template #default="{ row }">
+            <span class="price-text">¥{{ row.price }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="status"
+          label="售卖状态"
+          width="100"
+          align="center"
+        >
+          <template #default="{ row }">
+            <el-tag
+              :type="row.status === 1 ? 'success' : 'danger'"
+              effect="light"
+              round
+            >
+              {{ row.status === 1 ? "启售" : "停售" }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="updateTime"
+          label="最后操作时间"
+          min-width="170"
+        />
+        <el-table-column label="操作" width="160" fixed="right" align="center">
+          <template #default="{ row }">
+            <el-button type="primary" size="small" link @click="handleEdit(row)"
+              >修改</el-button
+            >
+            <el-button
+              :type="row.status === 1 ? 'warning' : 'success'"
+              size="small"
+              link
+              @click="handleStatusChange(row)"
+            >
+              {{ row.status === 1 ? "停售" : "起售" }}
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页 -->
+      <div class="pagination-bar">
+        <el-pagination
+          v-model:current-page="pager.page"
+          v-model:page-size="pager.pageSize"
+          :total="total"
+          :page-sizes="[5, 10, 20]"
+          layout="total, sizes, prev, pager, next, jumper"
+          background
+          @size-change="handleSearch"
+          @current-change="handleSearch"
         />
       </div>
-      <div class="toolbar-item">
-        <label>菜品分类：</label>
-        <el-select
-          v-model="searchForm.categoryId"
-          placeholder="请选择分类"
-          clearable
-          style="width: 180px"
-        >
-          <el-option
-            v-for="item in categoryList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          />
-        </el-select>
-      </div>
-      <div class="toolbar-item">
-        <label>售卖状态：</label>
-        <el-select
-          v-model="searchForm.status"
-          placeholder="请选择"
-          clearable
-          style="width: 130px"
-        >
-          <el-option label="启售" :value="1" />
-          <el-option label="停售" :value="0" />
-        </el-select>
-      </div>
-      <el-button type="primary" @click="handleSearch">搜索</el-button>
-      <el-button @click="resetSearch">重置</el-button>
-    </div>
-
-    <!-- 操作栏 -->
-    <div class="action-bar">
-      <el-button type="primary" @click="handleAdd">+ 新增菜品</el-button>
-      <el-button
-        type="danger"
-        :disabled="!selectedIds.length"
-        @click="handleBatchDelete"
-        >批量删除</el-button
-      >
-    </div>
-
-    <!-- 数据表格 -->
-    <el-table
-      :data="tableData"
-      border
-      stripe
-      v-loading="loading"
-      @selection-change="(rows) => (selectedIds = rows.map((r: any) => r.id))"
-    >
-      <el-table-column type="selection" width="50" />
-      <el-table-column prop="name" label="菜品名称" min-width="140" />
-      <el-table-column label="图片" width="90">
-        <template #default="{ row }">
-          <el-image
-            v-if="row.image"
-            :src="row.image"
-            style="width: 50px; height: 50px; border-radius: 4px"
-            fit="cover"
-            :preview-src-list="[row.image]"
-          />
-          <span v-else>-</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="categoryName" label="菜品分类" width="120" />
-      <el-table-column prop="price" label="售价" width="90">
-        <template #default="{ row }">¥{{ row.price }}</template>
-      </el-table-column>
-      <el-table-column prop="status" label="售卖状态" width="90">
-        <template #default="{ row }">
-          <el-tag :type="row.status === 1 ? 'success' : 'danger'">
-            {{ row.status === 1 ? "启售" : "停售" }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="updateTime" label="最后操作时间" width="175" />
-      <el-table-column label="操作" width="210" fixed="right">
-        <template #default="{ row }">
-          <el-button type="primary" size="small" link @click="handleEdit(row)"
-            >修改</el-button
-          >
-          <el-button
-            :type="row.status === 1 ? 'warning' : 'success'"
-            size="small"
-            link
-            @click="handleStatusChange(row)"
-          >
-            {{ row.status === 1 ? "停售" : "起售" }}
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <!-- 分页 -->
-    <div class="pagination-bar">
-      <el-pagination
-        v-model:current-page="pager.page"
-        v-model:page-size="pager.pageSize"
-        :total="total"
-        :page-sizes="[5, 10, 20]"
-        layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSearch"
-        @current-change="handleSearch"
-      />
     </div>
 
     <!-- 新增/编辑弹窗 -->
@@ -251,6 +288,7 @@
 
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from "element-plus";
+import { Plus, Delete } from "@element-plus/icons-vue";
 import { ref, reactive, onMounted } from "vue";
 import {
   listDishByPage,
@@ -396,29 +434,83 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.search-toolbar {
+.filter-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px 24px 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.filter-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
   flex-wrap: wrap;
+  gap: 16px;
 }
-.toolbar-item {
+
+.filter-item {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
 }
-.action-bar {
+
+.filter-label {
+  font-size: 14px;
+  color: #606266;
+  white-space: nowrap;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.table-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 16px;
 }
+
+.table-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.table-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .pagination-bar {
-  margin-top: 16px;
+  margin-top: 20px;
   display: flex;
   justify-content: flex-end;
 }
+
+.price-text {
+  color: #e6a23c;
+  font-weight: 600;
+}
+
+.text-muted {
+  color: #c0c4cc;
+}
+
 .flavor-section {
   width: 100%;
 }
+
 .flavor-item {
   display: flex;
   gap: 8px;

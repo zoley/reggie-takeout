@@ -8,7 +8,7 @@ export function listCategory(type?: number) {
 
 /** 分页查询分类 */
 export function listCategoryByPage(data: any) {
-  return request.post("/category/page", data);
+  return request.post("/category/listByPage", data);
 }
 
 /** 根据 ID 查询分类 */

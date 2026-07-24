@@ -1,97 +1,152 @@
 <template>
   <div class="page-container">
-    <div class="category-layout">
-      <!-- 左侧：分类列表 + 操作按钮 -->
-      <div class="left-panel">
-        <div class="panel-header">
-          <span>分类管理</span>
-          <div>
-            <el-button
-              type="primary"
-              size="small"
-              @click="handleAddDishCategory"
-              >新增菜品分类</el-button
-            >
-            <el-button
-              type="warning"
-              size="small"
-              @click="handleAddSetmealCategory"
-              >新增套餐分类</el-button
-            >
-          </div>
+    <!-- 搜索栏 -->
+    <div class="filter-card">
+      <div class="filter-row">
+        <div class="filter-item">
+          <span class="filter-label">分类名称</span>
+          <el-input
+            v-model="searchForm.name"
+            placeholder="请输入分类名称"
+            clearable
+            style="width: 200px"
+          />
         </div>
-        <el-table :data="tableData" border v-loading="loading">
-          <el-table-column prop="name" label="分类名称" min-width="140" />
-          <el-table-column prop="type" label="分类类型" width="110">
-            <template #default="{ row }">
-              <el-tag :type="row.type === 1 ? '' : 'warning'">
-                {{ row.type === 1 ? "菜品分类" : "套餐分类" }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="updateTime" label="操作时间" width="170" />
-          <el-table-column prop="sort" label="排序" width="70" align="center" />
-          <el-table-column label="操作" width="160" fixed="right">
-            <template #default="{ row }">
-              <el-button
-                type="primary"
-                size="small"
-                link
-                @click="handleEdit(row)"
-                >修改</el-button
-              >
-              <el-popconfirm
-                title="确定删除该分类？"
-                @confirm="handleDelete(row)"
-              >
-                <template #reference>
-                  <el-button type="danger" size="small" link>删除</el-button>
-                </template>
-              </el-popconfirm>
-              <el-icon class="sort-handle"><Rank /></el-icon>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-
-      <!-- 右侧：新建/编辑表单 -->
-      <div class="right-panel">
-        <div class="panel-header">
-          {{ formData.id ? "修改分类" : "新建分类" }}
+        <div class="filter-item">
+          <span class="filter-label">分类类型</span>
+          <el-select
+            v-model="searchForm.type"
+            placeholder="请选择分类类型"
+            clearable
+            style="width: 160px"
+          >
+            <el-option label="菜品分类" :value="1" />
+            <el-option label="套餐分类" :value="2" />
+          </el-select>
         </div>
-        <el-form
-          v-if="showForm"
-          ref="formRef"
-          :model="formData"
-          :rules="formRules"
-          label-width="80px"
-          style="padding: 20px"
-        >
-          <el-form-item label="分类名称" prop="name">
-            <el-input v-model="formData.name" placeholder="请输入分类名称" />
-          </el-form-item>
-          <el-form-item label="排序" prop="sort">
-            <el-input-number
-              v-model="formData.sort"
-              :min="1"
-              style="width: 100%"
-            />
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="handleSubmit">确定</el-button>
-            <el-button @click="showForm = false">取消</el-button>
-          </el-form-item>
-        </el-form>
-        <div v-else class="empty-hint">
-          点击左侧按钮新增或选择一条记录进行修改
+        <div class="filter-actions">
+          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button @click="resetSearch">重置</el-button>
         </div>
       </div>
     </div>
+
+    <!-- 表格区域 -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">分类列表</span>
+        <el-button type="primary" @click="handleAdd">
+          <el-icon style="margin-right: 4px"><Plus /></el-icon>新增分类
+        </el-button>
+      </div>
+
+      <el-table
+        :data="tableData"
+        stripe
+        v-loading="loading"
+        style="width: 100%"
+        :header-cell-style="{
+          background: '#fafafa',
+          color: '#333',
+          fontWeight: 600,
+        }"
+      >
+        <el-table-column prop="name" label="分类名称" min-width="140" />
+        <el-table-column
+          prop="type"
+          label="分类类型"
+          width="120"
+          align="center"
+        >
+          <template #default="{ row }">
+            <el-tag
+              :type="row.type === 1 ? '' : 'warning'"
+              effect="light"
+              round
+            >
+              {{ row.type === 1 ? "菜品分类" : "套餐分类" }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="sort" label="排序" width="100" align="center" />
+        <el-table-column prop="updateTime" label="操作时间" min-width="170" />
+        <el-table-column label="操作" width="160" fixed="right" align="center">
+          <template #default="{ row }">
+            <el-button type="primary" size="small" link @click="handleEdit(row)"
+              >编辑</el-button
+            >
+            <el-button
+              type="danger"
+              size="small"
+              link
+              @click="handleDelete(row)"
+              >删除</el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页 -->
+      <div class="pagination-bar">
+        <el-pagination
+          v-model:current-page="pager.page"
+          v-model:page-size="pager.pageSize"
+          :total="total"
+          :page-sizes="[5, 10, 20]"
+          layout="total, sizes, prev, pager, next, jumper"
+          background
+          @size-change="handleSearch"
+          @current-change="handleSearch"
+        />
+      </div>
+    </div>
+
+    <!-- 新增/编辑弹窗 -->
+    <el-dialog
+      v-model="dialogVisible"
+      :title="formData.id ? '编辑分类' : '新增分类'"
+      width="480px"
+      :close-on-click-modal="false"
+      destroy-on-close
+    >
+      <el-form
+        ref="formRef"
+        :model="formData"
+        :rules="formRules"
+        label-width="80px"
+      >
+        <el-form-item label="分类名称" prop="name">
+          <el-input v-model="formData.name" placeholder="请输入分类名称" />
+        </el-form-item>
+        <el-form-item label="分类类型" prop="type">
+          <el-select
+            v-model="formData.type"
+            placeholder="请选择分类类型"
+            style="width: 100%"
+          >
+            <el-option label="菜品分类" :value="1" />
+            <el-option label="套餐分类" :value="2" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="排序" prop="sort">
+          <el-input-number
+            v-model="formData.sort"
+            :min="1"
+            style="width: 100%"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSubmit">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ElMessage } from "element-plus";
+import { Plus } from "@element-plus/icons-vue";
 import { ref, reactive, onMounted } from "vue";
 import {
   listCategoryByPage,
@@ -102,9 +157,12 @@ import {
 
 const loading = ref(false);
 const tableData = ref([]);
-const showForm = ref(false);
+const total = ref(0);
+const dialogVisible = ref(false);
 const formRef = ref();
 
+const pager = reactive({ page: 1, pageSize: 10 });
+const searchForm = reactive({ name: "", type: "" });
 const formData = reactive<Record<string, any>>({
   name: "",
   sort: 1,
@@ -113,39 +171,46 @@ const formData = reactive<Record<string, any>>({
 
 const formRules = {
   name: [{ required: true, message: "请输入分类名称", trigger: "blur" }],
+  type: [{ required: true, message: "请选择分类类型", trigger: "change" }],
 };
 
-/** 加载列表 */
-function loadData() {
+/** 搜索/加载列表 */
+function handleSearch() {
   loading.value = true;
-  listCategoryByPage({ page: 1, pageSize: 100 })
+  listCategoryByPage({ ...pager, ...searchForm })
     .then((res: any) => {
       if (res?.code === 200) {
-        tableData.value = res.data?.records || [];
+        tableData.value = res.data || [];
+        total.value = res.data?.total || 0;
       }
     })
     .finally(() => (loading.value = false));
 }
 
-/** 新增菜品分类 */
-function handleAddDishCategory() {
-  Object.assign(formData, { id: undefined, name: "", sort: 1, type: 1 });
-  showForm.value = true;
+/** 重置 */
+function resetSearch() {
+  searchForm.name = "";
+  searchForm.type = "";
+  pager.page = 1;
+  handleSearch();
 }
 
-/** 新增套餐分类 */
-function handleAddSetmealCategory() {
-  Object.assign(formData, { id: undefined, name: "", sort: 1, type: 2 });
-  showForm.value = true;
+/** 新增 */
+function handleAdd() {
+  Object.keys(formData).forEach((key) => {
+    delete formData[key];
+  });
+  Object.assign(formData, { name: "", sort: 1, type: 1 });
+  dialogVisible.value = true;
 }
 
 /** 编辑 */
 function handleEdit(row: Record<string, any>) {
   Object.assign(formData, { ...row });
-  showForm.value = true;
+  dialogVisible.value = true;
 }
 
-/** 提交 */
+/** 提交表单 */
 async function handleSubmit() {
   try {
     await formRef.value.validate();
@@ -158,8 +223,8 @@ async function handleSubmit() {
   api(formData).then((res: any) => {
     if (res?.code === 200) {
       ElMessage.success(msg);
-      showForm.value = false;
-      loadData();
+      dialogVisible.value = false;
+      handleSearch();
     }
   });
 }
@@ -169,53 +234,71 @@ function handleDelete(row: Record<string, any>) {
   deleteCategory(row.id).then((res: any) => {
     if (res?.code === 200) {
       ElMessage.success("删除成功");
-      loadData();
+      handleSearch();
     }
   });
 }
 
-onMounted(() => loadData());
+onMounted(() => handleSearch());
 </script>
 
 <style scoped>
-.category-layout {
+.filter-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px 24px 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.filter-row {
   display: flex;
-  gap: 24px;
-  height: calc(100vh - 140px);
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
 }
-.left-panel {
-  flex: 2;
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-label {
+  font-size: 14px;
+  color: #606266;
+  white-space: nowrap;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.table-card {
   background: #fff;
-  padding: 16px;
-  border-radius: 4px;
+  border-radius: 8px;
+  padding: 20px 24px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
-.right-panel {
-  flex: 1;
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-  max-width: 380px;
+
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
 }
-.panel-header {
+
+.table-title {
   font-size: 16px;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 16px;
+  color: #303133;
+}
+
+.pagination-bar {
+  margin-top: 20px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.sort-handle {
-  cursor: move;
-  color: #999;
-  vertical-align: middle;
-  margin-left: 6px;
-}
-.empty-hint {
-  padding: 40px 20px;
-  text-align: center;
-  color: #999;
-  font-size: 14px;
+  justify-content: flex-end;
 }
 </style>

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zoley.common.result.Result;
+import com.zoley.common.result.ResultCode;
 import com.zoley.common.utils.CodeUtils;
 import com.zoley.entity.Employee;
 import com.zoley.entity.EmployeeSearch;
@@ -63,23 +64,23 @@ public class EmployeeController {
   @PostMapping("/login")
   public Result<Employee> login(@RequestBody Employee employee) {
     if (!StringUtils.hasText(employee.getUserName())) {
-      return Result.error("用户名不能为空");
+      return Result.error(ResultCode.CODE_422, "用户名不能为空");
     }
     if (!StringUtils.hasText(employee.getPassword())) {
-      return Result.error("密码不能为空");
+      return Result.error(ResultCode.CODE_422, "密码不能为空");
     }
     LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
     queryWrapper.eq(Employee::getUserName, employee.getUserName());
     Employee findEmployee = employeeService.getOne(queryWrapper);
     if (findEmployee == null) {
-      return Result.error("用户名或密码错误");
+      return Result.error(ResultCode.CODE_422, "用户名或密码错误");
     }
     String md5Password = DigestUtils.md5DigestAsHex(employee.getPassword().getBytes());
     if (!md5Password.equals(findEmployee.getPassword())) {
-      return Result.error("用户名或密码错误");
+      return Result.error(ResultCode.CODE_422, "用户名或密码错误");
     }
     if (findEmployee.getStatus() == 0) {
-      return Result.error("员工已被禁用,请联系管理员");
+      return Result.error(ResultCode.CODE_433, "员工已被禁用,请联系管理员");
     }
     return Result.success("登录成功", findEmployee);
   }
