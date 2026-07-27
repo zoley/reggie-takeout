@@ -60,7 +60,7 @@
         >
           <template #default="{ row }">
             <el-tag
-              :type="row.type === 1 ? '' : 'warning'"
+              :type="row.type === 1 ? 'primary' : 'warning'"
               effect="light"
               round
             >
@@ -89,10 +89,10 @@
       <!-- 分页 -->
       <div class="pagination-bar">
         <el-pagination
-          v-model:current-page="pager.page"
+          v-model:current-page="pager.current"
           v-model:page-size="pager.pageSize"
           :total="total"
-          :page-sizes="[5, 10, 20]"
+          :page-sizes="[10, 20, 50, 100]"
           layout="total, sizes, prev, pager, next, jumper"
           background
           @size-change="handleSearch"
@@ -145,7 +145,7 @@
 </template>
 
 <script setup lang="ts">
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import { Plus } from "@element-plus/icons-vue";
 import { ref, reactive, onMounted } from "vue";
 import {
@@ -161,8 +161,8 @@ const total = ref(0);
 const dialogVisible = ref(false);
 const formRef = ref();
 
-const pager = reactive({ page: 1, pageSize: 10 });
-const searchForm = reactive({ name: "", type: "" });
+const pager = reactive({ current: 1, pageSize: 10 });
+const searchForm = reactive({ name: "", type: undefined });
 const formData = reactive<Record<string, any>>({
   name: "",
   sort: 1,
@@ -180,7 +180,7 @@ function handleSearch() {
   listCategoryByPage({ ...pager, ...searchForm })
     .then((res: any) => {
       if (res?.code === 200) {
-        tableData.value = res.data || [];
+        tableData.value = res.data?.records || [];
         total.value = res.data?.total || 0;
       }
     })
@@ -190,8 +190,8 @@ function handleSearch() {
 /** 重置 */
 function resetSearch() {
   searchForm.name = "";
-  searchForm.type = "";
-  pager.page = 1;
+  searchForm.type = undefined;
+  pager.current = 1;
   handleSearch();
 }
 
@@ -231,12 +231,20 @@ async function handleSubmit() {
 
 /** 删除 */
 function handleDelete(row: Record<string, any>) {
-  deleteCategory(row.id).then((res: any) => {
-    if (res?.code === 200) {
-      ElMessage.success("删除成功");
-      handleSearch();
-    }
-  });
+  ElMessageBox.confirm(`确定要删除分类「${row.name}」吗？`, "提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      deleteCategory(row.id).then((res: any) => {
+        if (res?.code === 200) {
+          ElMessage.success("删除成功");
+          handleSearch();
+        }
+      });
+    })
+    .catch(() => {});
 }
 
 onMounted(() => handleSearch());

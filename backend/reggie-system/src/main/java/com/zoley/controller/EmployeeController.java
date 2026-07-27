@@ -14,7 +14,9 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
+
 import static com.zoley.common.constant.Constant.BASE_PATH;
 
 
@@ -32,6 +34,7 @@ import static com.zoley.common.constant.Constant.BASE_PATH;
 @RequestMapping(BASE_PATH + "/employee")
 public class EmployeeController {
   private final EmployeeService employeeService;
+
   public EmployeeController(EmployeeService employeeService) {
     this.employeeService = employeeService;
   }
@@ -130,6 +133,7 @@ public class EmployeeController {
     }
     return Result.error("启用失败");
   }
+
   @GetMapping("/disabledStatus")
   public Result<Employee> disabledStatus(@RequestParam Long id) {
     Employee employee = employeeService.getById(id);
@@ -143,6 +147,17 @@ public class EmployeeController {
     }
     return Result.error("禁用员工失败");
   }
+
+
+  @GetMapping("/getById")
+  public Result<Employee> getById(@RequestParam Long id) {
+    Employee employee = employeeService.getById(id);
+    if (employee == null) {
+      return Result.error("员工不存在");
+    }
+    return Result.success(employee);
+  }
+
 
   @PostMapping("/batchDelete")
   public Result<Employee> deleteBatch(@RequestBody List<Long> ids) {
@@ -163,7 +178,19 @@ public class EmployeeController {
   }
 
 
-
+  @PutMapping("/resetPassword")
+  public Result<Employee> resetPassword(@RequestBody Employee employee) {
+    if (employee.getId() == null) {
+      return Result.error(ResultCode.CODE_422, "员工ID不能为空");
+    }
+    String newPassword = DigestUtils.md5DigestAsHex(employee.getPassword().getBytes());
+    employee.setPassword(newPassword);
+    boolean isOk = employeeService.updateById(employee);
+    if (isOk) {
+      return Result.success("重置密码成功");
+    }
+    return Result.error("重置密码失败");
+  }
 
 
 }

@@ -30,7 +30,7 @@ import java.time.LocalDateTime;
 
    @Override
    public void updateFill(MetaObject metaObject) {
-     this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
-     this.strictUpdateFill(metaObject, "updateUser", Long.class, BaseContext.getCurrentId());
+     this.setFieldValByName("updateTime", LocalDateTime.now(), metaObject);
+     this.setFieldValByName("updateUser", BaseContext.getCurrentId(), metaObject);
    }
  }

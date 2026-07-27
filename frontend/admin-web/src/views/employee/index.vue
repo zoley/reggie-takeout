@@ -97,7 +97,7 @@
           v-model:current-page="pager.page"
           v-model:page-size="pager.pageSize"
           :total="total"
-          :page-sizes="[5, 10, 20]"
+          :page-sizes="[10, 20, 50, 100]"
           layout="total, sizes, prev, pager, next, jumper"
           background
           @size-change="handleSearch"
@@ -373,6 +373,7 @@ async function handleResetPwdSubmit() {
   resetEmployeePassword({
     id: resetPwdData.id,
     password: resetPwdData.newPassword,
+    confirmPassword: resetPwdData.confirmPassword,
   }).then((res: any) => {
     if (res?.code === 200) {
       ElMessage.success("密码重置成功");

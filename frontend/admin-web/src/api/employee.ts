@@ -8,7 +8,7 @@ export function listEmployeeByPage(data: any) {
 
 /** 根据 ID 查询员工 */
 export function getEmployeeById(params: Record<string, any>) {
-  return request.get(`/employee/getById`,{params});
+  return request.get(`/employee/getById`, { params });
 }
 
 /** 新增员工 */
@@ -31,14 +31,14 @@ export function disabledEmployeeStatus(params: Record<string, any>) {
 }
 
 /** 批量删除员工 */
-export function deleteBatchEmployee(data:string[]) {
-  return request.post(`/employee/batchDelete`,data);
+export function deleteBatchEmployee(data: string[]) {
+  return request.post(`/employee/batchDelete`, data);
 }
-export function deleteEmployeeById(id:string) {
+export function deleteEmployeeById(id: string) {
   return request.delete(`/employee/delete/${id}`);
 }
 
 /** 重置员工密码 */
 export function resetEmployeePassword(data: any) {
-  return request.post("/employee/resetPassword", data);
+  return request.put("/employee/resetPassword", data);
 }

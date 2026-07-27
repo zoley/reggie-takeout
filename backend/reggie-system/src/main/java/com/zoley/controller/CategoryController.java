@@ -1,13 +1,16 @@
 package com.zoley.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zoley.common.result.Result;
 import com.zoley.entity.Category;
+import com.zoley.entity.CategorySearch;
+import com.zoley.entity.Employee;
 import com.zoley.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,8 +34,60 @@ public class CategoryController {
   private final CategoryService categoryService;
 
   @PostMapping("/listByPage")
-  public Result<List<Category>> listByPage() {
-    return Result.success(categoryService.list());
+  public Result<Page<Category>> listByPage(@RequestBody CategorySearch categorySearch) {
+    String name = categorySearch.getName();
+    String type = categorySearch.getType();
+    LambdaQueryWrapper<Category> categoryLambdaQueryWrapper = new LambdaQueryWrapper<>();
+    categoryLambdaQueryWrapper.like(StringUtils.hasText(name), Category::getName, name);
+    categoryLambdaQueryWrapper.eq(type != null, Category::getType, type);
+    categoryLambdaQueryWrapper.orderByAsc(Category::getSort);
+    Page<Category> page = new Page<>(categorySearch.getCurrent(), categorySearch.getPageSize());
+    Page<Category> pageResult = categoryService.page(page, categoryLambdaQueryWrapper);
+    return Result.success(pageResult);
   }
-}
 
+  @PostMapping("/create")
+  public Result<Category> create(@RequestBody Category category) {
+    boolean flag = categoryService.save(category);
+    if (flag) {
+      return Result.success(category);
+    }
+    return Result.error("创建失败");
+  }
+
+  @PutMapping("/update")
+  public Result<Category> update(@RequestBody Category category) {
+    boolean flag = categoryService.updateById(category);
+    if (flag) {
+      return Result.success("更新成功", category);
+    }
+    return Result.error("更新失败");
+  }
+
+  @DeleteMapping("/delete/{id}")
+  public Result<Category> delete(@PathVariable Long id) {
+    boolean flag = categoryService.removeById(id);
+    if (flag) {
+      return Result.success("删除成功");
+    }
+    return Result.error("删除失败");
+  }
+  @PostMapping("/batchDelete")
+  public Result<Category> deleteBatch(@RequestBody List<Long> ids) {
+    boolean isOk = categoryService.removeByIds(ids);
+    if (isOk) {
+      return Result.success("删除成功");
+    }
+    return Result.error("删除失败");
+  }
+
+  @GetMapping("/getById")
+  public Result<Category> getById(@RequestParam Long id) {
+    Category category = categoryService.getById(id);
+    if (category == null) {
+      return Result.error("分类不存在");
+    }
+    return Result.success(category);
+  }
+
+}
