@@ -203,8 +203,8 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { ref, reactive, onMounted } from "vue";
 import {
   listOrderByPage,
-  getOrderDetail,
-  updateOrderStatus,
+  getOrderById,
+  updateOrder,
 } from "../../api/order";
 
 const loading = ref(false);
@@ -266,7 +266,7 @@ function resetSearch() {
 
 /** 查看详情 */
 function handleDetail(row: Record<string, any>) {
-  getOrderDetail(row.id).then((res: any) => {
+  getOrderById({ id: row.id }).then((res: any) => {
     if (res?.code === 200) {
       Object.assign(detailData, res.data || row);
       detailVisible.value = true;
@@ -278,7 +278,7 @@ function handleDetail(row: Record<string, any>) {
 function handleComplete(row: Record<string, any>) {
   ElMessageBox.confirm("确定将该订单标记为已完成？", "提示")
     .then(() => {
-      updateOrderStatus(row.id, 4).then((res: any) => {
+      updateOrder({ id: row.id, status: 4 }).then((res: any) => {
         if (res?.code === 200) {
           ElMessage.success("订单已完成");
           handleSearch();
@@ -292,7 +292,7 @@ function handleComplete(row: Record<string, any>) {
 function handleCancel(row: Record<string, any>) {
   ElMessageBox.confirm("确定要取消该订单吗？", "提示")
     .then(() => {
-      updateOrderStatus(row.id, 5).then((res: any) => {
+      updateOrder({ id: row.id, status: 5 }).then((res: any) => {
         if (res?.code === 200) {
           ElMessage.success("订单已取消");
           handleSearch();

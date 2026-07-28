@@ -1,13 +1,12 @@
 package com.zoley.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zoley.common.result.Result;
 import com.zoley.common.result.ResultCode;
 import com.zoley.common.utils.CodeUtils;
 import com.zoley.entity.Employee;
-import com.zoley.entity.EmployeeSearch;
+import com.zoley.entity.search.EmployeeSearch;
 import com.zoley.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.DigestUtils;

@@ -48,6 +48,7 @@
               class="login-btn"
               :loading="loading"
               @click="handleLogin"
+              native-type="submit"
             >
               登 录
             </el-button>
@@ -65,9 +66,10 @@
 <script setup lang="ts">
 import { ref, reactive } from "vue";
 import { ElMessage } from "element-plus";
-import {Food, User,Lock} from "@element-plus/icons-vue";
+import { Food, User, Lock } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
-import { login } from "@/api/auth";
+import { loginEmployee } from "@/api/auth";
+import { useUserStore } from "@/stores/user";
 
 const router = useRouter();
 const formRef = ref();
@@ -92,11 +94,10 @@ async function handleLogin() {
   }
 
   loading.value = true;
-  login(formData)
+  loginEmployee(formData)
     .then((res: any) => {
       if (res?.code === 200) {
-        sessionStorage.setItem("token", res.data.id);
-        sessionStorage.setItem("user", JSON.stringify(res.data));
+        useUserStore().setLogin(res.data);
         ElMessage.success("登录成功");
         router.push("/employee");
       }

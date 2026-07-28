@@ -1,13 +1,17 @@
+// 认证管理 API
 import request from "./request";
 
-export function login(data: any) {
+/** 员工登录 */
+export function loginEmployee(data: any) {
   return request.post("/employee/login", data);
 }
 
-export function logout() {
+/** 员工登出 */
+export function logoutEmployee() {
   return request.post("/employee/logout");
 }
 
-export function getCurrentUser() {
+/** 获取当前员工信息 */
+export function getEmployeeInfo() {
   return request.get("/employee/info");
 }

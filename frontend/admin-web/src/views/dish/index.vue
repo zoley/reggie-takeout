@@ -294,8 +294,9 @@ import {
   listDishByPage,
   createDish,
   updateDish,
-  updateDishStatus,
-  deleteDish,
+  enabledDishStatus,
+  disabledDishStatus,
+  deleteBatchDish,
 } from "../../api/dish";
 import { listCategory } from "../../api/category";
 
@@ -400,7 +401,10 @@ function handleStatusChange(row: Record<string, any>) {
   const action = newStatus === 1 ? "起售" : "停售";
   ElMessageBox.confirm(`确定要${action}该菜品吗？`, "提示")
     .then(() => {
-      updateDishStatus(newStatus, row.id)
+      (newStatus === 1
+        ? enabledDishStatus({ id: row.id })
+        : disabledDishStatus({ id: row.id })
+      )
         .then((res: any) => {
           if (res?.code === 200) {
             ElMessage.success(`${action}成功`);
@@ -416,7 +420,7 @@ function handleStatusChange(row: Record<string, any>) {
 function handleBatchDelete() {
   ElMessageBox.confirm(`确定删除选中的 ${selectedIds.value.length} 条记录吗？`)
     .then(() => {
-      deleteDish(selectedIds.value.join(",")).then((res: any) => {
+      deleteBatchDish(selectedIds.value).then((res: any) => {
         if (res?.code === 200) {
           ElMessage.success("删除成功");
           selectedIds.value = [];

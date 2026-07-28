@@ -18,7 +18,7 @@ export function createEmployee(data: any) {
 
 /** 修改员工 */
 export function updateEmployee(data: any) {
-  return request.post("/employee/update", data);
+  return request.put("/employee/update", data);
 }
 
 /** 启停用员工账号 */

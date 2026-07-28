@@ -48,7 +48,7 @@
           <span class="page-title">{{ currentPageTitle }}</span>
         </div>
         <div class="header-right">
-          <span>管理员</span>
+          <span>{{ userStore.userName || "管理员" }}</span>
           <el-button link @click="handleLogout">退出登录</el-button>
         </div>
       </el-header>
@@ -63,6 +63,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useUserStore } from "@/stores/user";
 import {
   User,
   Menu as MenuIcon,
@@ -75,6 +76,7 @@ import {
 
 const route = useRoute();
 const router = useRouter();
+const userStore = useUserStore();
 const isCollapse = ref(false);
 
 const activeMenu = computed(() => route.path);
@@ -82,9 +84,7 @@ const activeMenu = computed(() => route.path);
 const currentPageTitle = computed(() => route.meta?.title || "后台管理");
 
 const handleLogout = () => {
-  sessionStorage.clear();
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
+  userStore.logout();
   router.push("/login");
 };
 </script>

@@ -3,15 +3,15 @@ import request from "./request";
 
 /** 分页查询订单 */
 export function listOrderByPage(data: any) {
-  return request.post("/order/page", data);
+  return request.post("/order/listByPage", data);
 }
 
-/** 订单详情 */
-export function getOrderDetail(orderId: string) {
-  return request.get(`/order/detail/${orderId}`);
+/** 根据 ID 查询订单 */
+export function getOrderById(params: Record<string, any>) {
+  return request.get(`/order/getById`, { params });
 }
 
-/** 更新订单状态 */
-export function updateOrderStatus(orderId: string, status: number) {
-  return request.put(`/order`, { id: orderId, status });
+/** 修改订单 */
+export function updateOrder(data: any) {
+  return request.put("/order/update", data);
 }

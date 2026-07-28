@@ -1,4 +1,4 @@
-package com.zoley.entity;
+package com.zoley.entity.search;
 
 import lombok.Data;
 

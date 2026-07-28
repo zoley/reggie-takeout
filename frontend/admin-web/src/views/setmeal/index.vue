@@ -346,8 +346,9 @@ import {
   listSetmealByPage,
   createSetmeal,
   updateSetmeal,
-  updateSetmealStatus,
-  deleteSetmeal,
+  enabledSetmealStatus,
+  disabledSetmealStatus,
+  deleteBatchSetmeal,
 } from "../../api/setmeal";
 import { listCategory } from "../../api/category";
 import { listDishByPage } from "../../api/dish";
@@ -494,7 +495,10 @@ function handleStatusChange(row: Record<string, any>) {
   const action = newStatus === 1 ? "起售" : "停售";
   ElMessageBox.confirm(`确定要${action}该套餐吗？`, "提示")
     .then(() => {
-      updateSetmealStatus(newStatus, row.id).then((res: any) => {
+      (newStatus === 1
+        ? enabledSetmealStatus({ id: row.id })
+        : disabledSetmealStatus({ id: row.id })
+      ).then((res: any) => {
         if (res?.code === 200) {
           ElMessage.success(`${action}成功`);
           handleSearch();
@@ -508,7 +512,7 @@ function handleStatusChange(row: Record<string, any>) {
 function handleBatchDelete() {
   ElMessageBox.confirm(`确定删除选中的 ${selectedIds.value.length} 条记录吗？`)
     .then(() => {
-      deleteSetmeal(selectedIds.value.join(",")).then((res: any) => {
+      deleteBatchSetmeal(selectedIds.value).then((res: any) => {
         if (res?.code === 200) {
           ElMessage.success("删除成功");
           selectedIds.value = [];

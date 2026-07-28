@@ -4,8 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zoley.common.result.Result;
 import com.zoley.entity.Category;
-import com.zoley.entity.CategorySearch;
-import com.zoley.entity.Employee;
+import com.zoley.entity.search.CategorySearch;
 import com.zoley.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,6 +63,13 @@ public class CategoryController {
     return Result.error("更新失败");
   }
 
+  /**
+    * 描 述： 删除分类
+    * 作 者： 主成睿
+    * 历 史： (版本)  注意联动删除
+    * @param id 分类id
+    * @return 删除结果
+    */
   @DeleteMapping("/delete/{id}")
   public Result<Category> delete(@PathVariable Long id) {
     boolean flag = categoryService.removeById(id);

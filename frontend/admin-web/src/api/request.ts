@@ -1,7 +1,7 @@
 // axios 请求封装
 import axios from "axios";
 import { ElMessage } from "element-plus";
-import {BASE_PATH} from "@/utils";
+import { BASE_PATH } from "@/utils";
 import router from "@/router";
 
 // 创建 axios 实例
@@ -28,7 +28,7 @@ request.interceptors.response.use(
     const res = response.data;
     if (res.code !== undefined && res.code !== 200) {
       ElMessage.error(res.msg || "请求失败");
-      if(res.code === 401){
+      if (res.code === 401) {
         sessionStorage.removeItem("token");
         sessionStorage.removeItem("user");
         router.replace("/login");

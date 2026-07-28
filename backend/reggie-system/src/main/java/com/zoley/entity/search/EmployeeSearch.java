@@ -1,4 +1,4 @@
-package com.zoley.entity;
+package com.zoley.entity.search;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class CategorySearch extends PaginationDTO {
+public class EmployeeSearch  extends PaginationDTO {
   private String name;
-  private String type;
+  private String userName;
 }

@@ -91,8 +91,8 @@
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   createProduct,
-  deleteProduct,
-  getProducts,
+  deleteProductById,
+  listProduct,
   listProductByPage,
   updateProduct,
 } from "../../api/product";
@@ -119,7 +119,7 @@ const pager = ref({
 
 const handleSearch = () => {
   // TODO: 搜索商品
-  // getProducts(searchForm.value.name || "").then((res: any) => {
+  // listProduct({ name: searchForm.value.name || "" }).then((res: any) => {
   //   console.log(res);
   //   if (res?.code === 200) {
   //     productData.value = res.data;
@@ -147,7 +147,7 @@ const handleDelete = (row) => {
   ElMessageBox.confirm("确定删除吗?")
     .then(() => {
       // TODO: 删除商品
-      deleteProduct(row.id).then((res: any) => {
+      deleteProductById(row.id).then((res: any) => {
         if (res?.code === 200) {
           ElMessage.success("删除成功.");
           handleSearch();
@@ -166,7 +166,7 @@ const handleAdd = () => {
 const handleSubmit = () => {
   // TODO: 提交表单
   if (formData.value.id) {
-    updateProduct(formData.value.id, formData.value).then((res: any) => {
+    updateProduct(formData.value).then((res: any) => {
       if (res?.code === 200) {
         ElMessage.success("更新成功.");
         dialogVisible.value = false;
