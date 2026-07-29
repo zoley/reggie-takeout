@@ -13,4 +13,5 @@ import com.zoley.entity.Category;
  * 历 史: (版本) 作者 时间 注释
  */
 public interface CategoryService extends IService<Category> {
+  boolean customRemoveById(Long id);
 }

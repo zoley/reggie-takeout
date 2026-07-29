@@ -12,11 +12,13 @@ export const useUserStore = defineStore(
     function setLogin(data: { id: string; name: string; [key: string]: any }) {
       token.value = data.id;
       userInfo.value = data;
+      sessionStorage.setItem("token",data.id);
     }
 
     function logout() {
       token.value = "";
       userInfo.value = null;
+      sessionStorage.clear();
     }
 
     return { token, userInfo, userName, setLogin, logout };

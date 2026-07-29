@@ -310,8 +310,8 @@ const selectedIds = ref<number[]>([]);
 
 const pager = reactive({ page: 1, pageSize: 10 });
 const searchForm = reactive({
-  name: "",
-  categoryId: "",
+  name: undefined,
+  categoryId: undefined,
   status: undefined as number | undefined,
 });
 const formData = reactive<Record<string, any>>({});
@@ -349,7 +349,7 @@ function handleSearch() {
 
 /** 重置 */
 function resetSearch() {
-  Object.assign(searchForm, { name: "", categoryId: "", status: undefined });
+  Object.assign(searchForm, { name: undefined, categoryId: undefined, status: undefined });
   pager.page = 1;
   handleSearch();
 }
@@ -357,11 +357,11 @@ function resetSearch() {
 /** 新增 */
 function handleAdd() {
   Object.assign(formData, {
-    name: "",
-    categoryId: "",
+    name: undefined,
+    categoryId: undefined,
     price: 0,
-    image: "",
-    description: "",
+    image: undefined,
+    description: undefined,
     status: 1,
   });
   flavorList.value = [];

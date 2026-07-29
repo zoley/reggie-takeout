@@ -18,8 +18,6 @@ import lombok.EqualsAndHashCode;
 @TableName("category")
 @Data
 public class Category extends Base {
-  @JsonFormat(shape = JsonFormat.Shape.STRING)
-  private Long id;
 
   private String name;
 

@@ -1,5 +1,8 @@
 package com.zoley.entity.search;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
  * 类 名: DishSearch
  * 描 述:
@@ -9,6 +12,8 @@ package com.zoley.entity.search;
  * <p>
  * 历 史: (版本) 作者 时间 注释
  */
+@EqualsAndHashCode(callSuper = true)
+@Data
 public class DishSearch extends PaginationDTO{
   private String name;
   private Long categoryId;

@@ -8,6 +8,7 @@ import com.zoley.entity.Dish;
 import com.zoley.entity.search.DishSearch;
 import com.zoley.service.DishService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +33,13 @@ public class DishController {
 
   @PostMapping("/listByPage")
   public Result<Page<Dish>> listByPage(@RequestBody DishSearch dishSearch) {
+    String name = dishSearch.getName();
+    Long categoryId = dishSearch.getCategoryId();
+    Integer status = dishSearch.getStatus();
     LambdaQueryWrapper<Dish> dishLambdaQueryWrapper = new LambdaQueryWrapper<>();
+    dishLambdaQueryWrapper.like(StringUtils.hasText(name), Dish::getName, name);
+    dishLambdaQueryWrapper.eq(categoryId != null, Dish::getCategoryId, categoryId);
+    dishLambdaQueryWrapper.eq(status != null, Dish::getStatus, status);
     Page<Dish> page = new Page<>(dishSearch.getCurrent(), dishSearch.getPageSize());
     Page<Dish> pageResult = dishService.page(page, dishLambdaQueryWrapper);
     return Result.success(pageResult);

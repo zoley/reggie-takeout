@@ -63,6 +63,13 @@ public class GlobalExceptionHandler {
     }
     return Result.error(msg);
   }
-
+  /**
+   * 自定义执行异常
+   */
+  @ExceptionHandler(CustomException.class)
+  public Result<String> handleCustomException(CustomException e) {
+    String message = e.getMessage();
+    return Result.error(ResultCode.CODE_435,message);
+  }
 
 }

@@ -71,8 +71,8 @@ public class CategoryController {
     * @return 删除结果
     */
   @DeleteMapping("/delete/{id}")
-  public Result<Category> delete(@PathVariable Long id) {
-    boolean flag = categoryService.removeById(id);
+  public Result<String> delete(@PathVariable Long id) {
+    boolean flag = categoryService.customRemoveById(id);
     if (flag) {
       return Result.success("删除成功");
     }
