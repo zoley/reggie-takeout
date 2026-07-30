@@ -1,9 +1,12 @@
 /**
  * 通用工具函数
  */
-export const BASE_PATH="/api/v1"
+export const BASE_PATH = "/api/v1";
 /** 格式化日期 */
-export function formatDate(date: string | number | Date, fmt = "YYYY-MM-DD HH:mm:ss") {
+export function formatDate(
+  date: string | number | Date,
+  fmt = "YYYY-MM-DD HH:mm:ss",
+) {
   if (!date) return "";
   const d = new Date(date);
   const map: Record<string, string> = {
@@ -25,6 +28,17 @@ export function formatDate(date: string | number | Date, fmt = "YYYY-MM-DD HH:mm
 export function formatPrice(price: number): string {
   if (price == null) return "¥0.00";
   return `¥${Number(price).toFixed(2)}`;
+}
+
+/** 拼接文件下载路径 */
+export function getFileUrl(fileName: string, isAttachment = false): string {
+  const token = sessionStorage.getItem("token");
+  const params = new URLSearchParams({
+    fileName,
+    isAttachment: String(isAttachment),
+    token: token ? `Bearer ${token}` : "",
+  });
+  return `${BASE_PATH}/common/file/download?${params.toString()}`;
 }
 
 /** 本地存储读取 */

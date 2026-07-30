@@ -57,10 +57,13 @@
             plain
             :disabled="!selectedIds.length"
             @click="handleBatchDelete"
-            >批量删除</el-button
-          >
+            >批量删除
+          </el-button>
           <el-button type="primary" @click="handleAdd">
-            <el-icon style="margin-right: 4px"><Plus /></el-icon>新增菜品
+            <el-icon style="margin-right: 4px">
+              <Plus />
+            </el-icon>
+            新增菜品
           </el-button>
         </div>
       </div>
@@ -126,8 +129,8 @@
         <el-table-column label="操作" width="160" fixed="right" align="center">
           <template #default="{ row }">
             <el-button type="primary" size="small" link @click="handleEdit(row)"
-              >修改</el-button
-            >
+              >修改
+            </el-button>
             <el-button
               :type="row.status === 1 ? 'warning' : 'success'"
               size="small"
@@ -205,25 +208,38 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="菜品图片">
-              <el-upload
-                action="/api/common/upload"
-                :headers="{
-                  Authorization: `Bearer ${localStorage.getItem('token')}`,
-                }"
-                :show-file-list="false"
-                :on-success="(res: any) => (formData.image = res.data)"
-                accept=".jpg,.jpeg,.png"
-              >
-                <el-image
-                  v-if="formData.image"
-                  :src="formData.image"
-                  style="width: 60px; height: 60px"
-                  fit="cover"
-                />
-                <el-button v-else size="small" type="primary"
-                  >上传图片</el-button
+              <div class="image-upload-wrapper">
+                <!-- 无图：显示上传触发器 -->
+                <el-upload
+                  v-if="!formData.image"
+                  :before-upload="beforeUpload"
+                  :show-file-list="false"
+                  accept=".jpg,.jpeg,.png"
                 >
-              </el-upload>
+                  <el-icon class="upload-icon"><Plus /></el-icon>
+                </el-upload>
+                <!-- 有图：显示预览 + 右上角删除按钮，点击图片可放大查看 -->
+                <div v-else class="image-preview">
+                  <div class="preview-img-wrapper">
+                    <el-image
+                      :src="formData.image"
+                      class="preview-img"
+                      fit="cover"
+                      :preview-src-list="[formData.image]"
+                      :preview-teleported="true"
+                      :z-index="3000"
+                      hide-on-click-modal
+                    />
+                  </div>
+                  <span
+                    class="delete-btn"
+                    title="删除图片"
+                    @click.stop="handleRemoveImage"
+                  >
+                    <el-icon><Close /></el-icon>
+                  </span>
+                </div>
+              </div>
             </el-form-item>
           </el-col>
         </el-row>
@@ -256,7 +272,9 @@
                 circle
                 @click="flavorList.splice(index, 1)"
               >
-                <el-icon><Delete /></el-icon>
+                <el-icon>
+                  <Delete />
+                </el-icon>
               </el-button>
             </div>
             <el-button
@@ -288,7 +306,7 @@
 
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from "element-plus";
-import { Plus, Delete } from "@element-plus/icons-vue";
+import { Plus, Delete, Close } from "@element-plus/icons-vue";
 import { ref, reactive, onMounted } from "vue";
 import {
   listDishByPage,
@@ -297,9 +315,10 @@ import {
   enabledDishStatus,
   disabledDishStatus,
   deleteBatchDish,
-} from "../../api/dish";
-import { listCategory } from "../../api/category";
-
+} from "@/api/dish";
+import { listCategory } from "@/api/category";
+import { uploadFile } from "@/api/auth";
+import { getFileUrl } from "@/utils";
 const loading = ref(false);
 const tableData = ref([]);
 const categoryList = ref<any[]>([]);
@@ -325,6 +344,33 @@ const formRules = {
   price: [{ required: true, message: "请输入售价", trigger: "blur" }],
 };
 
+/** 上传前校验并上传 */
+function beforeUpload(file: File) {
+  const isImage = ["image/jpeg", "image/png"].includes(file.type);
+  const isLt2M = file.size / 1024 / 1024 < 2;
+  if (!isImage) {
+    ElMessage.error("只能上传 JPG/PNG 格式的图片");
+    return false;
+  }
+  if (!isLt2M) {
+    ElMessage.error("图片大小不能超过 2MB");
+    return false;
+  }
+  const postData = new FormData();
+  postData.append("file", file);
+  uploadFile(postData).then((res: any) => {
+    if (res?.code === 200) {
+      formData.image = getFileUrl(res.data.path);
+    }
+  });
+  return false;
+}
+
+/** 删除已上传图片 */
+function handleRemoveImage() {
+  formData.image = undefined;
+}
+
 /** 加载分类列表 */
 function loadCategories() {
   listCategory(1).then((res: any) => {
@@ -349,7 +395,11 @@ function handleSearch() {
 
 /** 重置 */
 function resetSearch() {
-  Object.assign(searchForm, { name: undefined, categoryId: undefined, status: undefined });
+  Object.assign(searchForm, {
+    name: undefined,
+    categoryId: undefined,
+    status: undefined,
+  });
   pager.page = 1;
   handleSearch();
 }
@@ -520,5 +570,90 @@ onMounted(() => {
   gap: 8px;
   margin-bottom: 8px;
   align-items: center;
+}
+
+.upload-icon {
+  width: 100px;
+  height: 100px;
+  font-size: 28px;
+  color: #8c939d;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.upload-icon:hover {
+  border-color: #409eff;
+  color: #409eff;
+}
+
+.image-upload-wrapper {
+  width: 100px;
+  height: 100px;
+  padding: 8px;
+  margin: -8px;
+  box-sizing: content-box;
+}
+
+.image-preview {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  cursor: pointer;
+}
+
+.image-preview .preview-img-wrapper {
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.image-preview :deep(.preview-img) {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.image-preview :deep(.preview-img .el-image__inner) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.delete-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  background: #f56c6c;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  box-shadow: 0 2px 6px rgba(245, 108, 108, 0.45);
+  transition: all 0.25s ease;
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+.delete-btn:hover {
+  background: #f23c3c;
+  transform: scale(1.15);
+  box-shadow: 0 2px 10px rgba(245, 108, 108, 0.65);
+}
+
+.delete-btn .el-icon {
+  font-size: 12px;
 }
 </style>

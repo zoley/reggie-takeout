@@ -15,3 +15,8 @@ export function logoutEmployee() {
 export function getEmployeeInfo() {
   return request.get("/employee/info");
 }
+
+/** 文件上传 */
+export function uploadFile(data) {
+  return request.post("/common/file/upload", data);
+}
