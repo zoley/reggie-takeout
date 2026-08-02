@@ -31,14 +31,13 @@ export function formatPrice(price: number): string {
 }
 
 /** 拼接文件下载路径 */
-export function getFileUrl(fileName: string, isAttachment = false): string {
+export function getFileUrl(fileId: string, isAttachment = false): string {
   const token = sessionStorage.getItem("token");
   const params = new URLSearchParams({
-    fileName,
     isAttachment: String(isAttachment),
     token: token ? `Bearer ${token}` : "",
   });
-  return `${BASE_PATH}/common/file/download?${params.toString()}`;
+  return `${BASE_PATH}/common/file/download/${fileId}?${params.toString()}`;
 }
 
 /** 本地存储读取 */

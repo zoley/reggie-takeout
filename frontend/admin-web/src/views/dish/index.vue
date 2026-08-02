@@ -360,7 +360,7 @@ function beforeUpload(file: File) {
   postData.append("file", file);
   uploadFile(postData).then((res: any) => {
     if (res?.code === 200) {
-      formData.image = getFileUrl(res.data.path);
+      formData.image = getFileUrl(res.data.id);
     }
   });
   return false;
