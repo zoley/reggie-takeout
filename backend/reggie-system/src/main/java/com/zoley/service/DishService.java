@@ -1,6 +1,7 @@
 package com.zoley.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zoley.dto.DishDTO;
 import com.zoley.entity.Dish;
 
 /**
@@ -13,4 +14,7 @@ import com.zoley.entity.Dish;
  * 历 史: (版本) 作者 时间 注释
  */
 public interface DishService extends IService<Dish> {
+   boolean saveDishAndFlavor(DishDTO dishDTO);
+   boolean updateDishAndFlavor(DishDTO dishDTO);
+   DishDTO getDishAndFlavorById(Long id);
 }

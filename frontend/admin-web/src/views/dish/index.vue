@@ -82,6 +82,7 @@
       >
         <el-table-column type="selection" width="50" />
         <el-table-column prop="name" label="菜品名称" min-width="140" />
+        <el-table-column prop="code" label="编码" width="110" align="center" />
         <el-table-column label="图片" width="90" align="center">
           <template #default="{ row }">
             <el-image
@@ -94,12 +95,11 @@
             <span v-else class="text-muted">-</span>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="categoryName"
-          label="菜品分类"
-          width="120"
-          align="center"
-        />
+        <el-table-column label="菜品分类" width="120" align="center">
+          <template #default="{ row }">
+            {{ getCategoryName(row.categoryId) }}
+          </template>
+        </el-table-column>
         <el-table-column prop="price" label="售价" width="100" align="center">
           <template #default="{ row }">
             <span class="price-text">¥{{ row.price }}</span>
@@ -126,7 +126,7 @@
           label="最后操作时间"
           min-width="170"
         />
-        <el-table-column label="操作" width="160" fixed="right" align="center">
+        <el-table-column label="操作" width="200" fixed="right" align="center">
           <template #default="{ row }">
             <el-button type="primary" size="small" link @click="handleEdit(row)"
               >修改
@@ -139,6 +139,13 @@
             >
               {{ row.status === 1 ? "停售" : "起售" }}
             </el-button>
+            <el-button
+              type="danger"
+              size="small"
+              link
+              @click="handleDelete(row)"
+              >删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -146,7 +153,7 @@
       <!-- 分页 -->
       <div class="pagination-bar">
         <el-pagination
-          v-model:current-page="pager.page"
+          v-model:current-page="pager.current"
           v-model:page-size="pager.pageSize"
           :total="total"
           :page-sizes="[10, 20, 50, 100]"
@@ -162,7 +169,7 @@
     <el-dialog
       v-model="dialogVisible"
       :title="formData.id ? '编辑菜品' : '新增菜品'"
-      width="650px"
+      width="720px"
       :close-on-click-modal="false"
       destroy-on-close
     >
@@ -197,6 +204,22 @@
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12">
+            <el-form-item label="菜品编码" prop="code">
+              <el-input v-model="formData.code" placeholder="请输入菜品编码" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="排序" prop="sort">
+              <el-input-number
+                v-model="formData.sort"
+                :min="0"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
             <el-form-item label="售价" prop="price">
               <el-input-number
                 v-model="formData.price"
@@ -207,42 +230,48 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="菜品图片">
-              <div class="image-upload-wrapper">
-                <!-- 无图：显示上传触发器 -->
-                <el-upload
-                  v-if="!formData.image"
-                  :before-upload="beforeUpload"
-                  :show-file-list="false"
-                  accept=".jpg,.jpeg,.png"
-                >
-                  <el-icon class="upload-icon"><Plus /></el-icon>
-                </el-upload>
-                <!-- 有图：显示预览 + 右上角删除按钮，点击图片可放大查看 -->
-                <div v-else class="image-preview">
-                  <div class="preview-img-wrapper">
-                    <el-image
-                      :src="formData.image"
-                      class="preview-img"
-                      fit="cover"
-                      :preview-src-list="[formData.image]"
-                      :preview-teleported="true"
-                      :z-index="3000"
-                      hide-on-click-modal
-                    />
-                  </div>
-                  <span
-                    class="delete-btn"
-                    title="删除图片"
-                    @click.stop="handleRemoveImage"
-                  >
-                    <el-icon><Close /></el-icon>
-                  </span>
-                </div>
-              </div>
+            <el-form-item label="售卖状态" prop="status">
+              <el-select v-model="formData.status" style="width: 100%">
+                <el-option label="启售" :value="1" />
+                <el-option label="停售" :value="0" />
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
+        <el-form-item label="菜品图片">
+          <div class="image-upload-wrapper">
+            <!-- 无图：显示上传触发器 -->
+            <el-upload
+              v-if="!formData.image"
+              :before-upload="beforeUpload"
+              :show-file-list="false"
+              accept=".jpg,.jpeg,.png"
+            >
+              <el-icon class="upload-icon"><Plus /></el-icon>
+            </el-upload>
+            <!-- 有图：显示预览 + 右上角删除按钮，点击图片可放大查看 -->
+            <div v-else class="image-preview">
+              <div class="preview-img-wrapper">
+                <el-image
+                  :src="formData.image"
+                  class="preview-img"
+                  fit="cover"
+                  :preview-src-list="[formData.image]"
+                  :preview-teleported="true"
+                  :z-index="3000"
+                  hide-on-click-modal
+                />
+              </div>
+              <span
+                class="delete-btn"
+                title="删除图片"
+                @click.stop="handleRemoveImage"
+              >
+                <el-icon><Close /></el-icon>
+              </span>
+            </div>
+          </div>
+        </el-form-item>
         <el-form-item label="口味配置">
           <div class="flavor-section">
             <div
@@ -251,21 +280,18 @@
               class="flavor-item"
             >
               <el-input
-                v-model="avor.name"
-                placeholder="口味名（如：辣度）"
-                style="width: 120px"
+                v-model="flavor.name"
+                placeholder="口味名称"
+                maxlength="4"
+                show-word-limit
+                style="width: 160px"
               />
-              <el-select
+              <el-input-tag
                 v-model="flavor.value"
-                multiple
-                filterable
-                allow-create
-                default-first-option
-                placeholder="选项"
+                placeholder="输入标签后回车"
+                :max="10"
                 style="flex: 1"
-              >
-                <!-- 动态添加选项 -->
-              </el-select>
+              />
               <el-button
                 type="danger"
                 size="small"
@@ -281,7 +307,7 @@
               size="small"
               type="primary"
               plain
-              @click="flavorList.push({ name: '', value: [] })"
+              @click="handleAddFlavor"
             >
               + 添加口味
             </el-button>
@@ -310,31 +336,40 @@ import { Plus, Delete, Close } from "@element-plus/icons-vue";
 import { ref, reactive, onMounted } from "vue";
 import {
   listDishByPage,
+  getDishById,
   createDish,
   updateDish,
   enabledDishStatus,
   disabledDishStatus,
+  deleteDishById,
   deleteBatchDish,
 } from "@/api/dish";
-import { listCategory } from "@/api/category";
+import { listCategoryByPage } from "@/api/category";
 import { uploadFile } from "@/api/auth";
 import { getFileUrl } from "@/utils";
+
+/** 口味表单项：name 对应 DishFlavor.name；value 为标签数组，提交时序列化为 JSON 字符串存入 DishFlavor.value */
+interface FlavorItem {
+  name: string;
+  value: string[];
+}
+
 const loading = ref(false);
-const tableData = ref([]);
+const tableData = ref<any[]>([]);
 const categoryList = ref<any[]>([]);
 const total = ref(0);
 const dialogVisible = ref(false);
 const formRef = ref();
 const selectedIds = ref<number[]>([]);
 
-const pager = reactive({ page: 1, pageSize: 10 });
+const pager = reactive({ current: 1, pageSize: 10 });
 const searchForm = reactive({
   name: undefined,
   categoryId: undefined,
   status: undefined as number | undefined,
 });
 const formData = reactive<Record<string, any>>({});
-const flavorList = ref<{ name: string; value: string[] }[]>([]);
+const flavorList = ref<FlavorItem[]>([]);
 
 const formRules = {
   name: [{ required: true, message: "请输入菜品名称", trigger: "blur" }],
@@ -343,6 +378,13 @@ const formRules = {
   ],
   price: [{ required: true, message: "请输入售价", trigger: "blur" }],
 };
+
+/** 根据 categoryId 解析分类名称（Dish 实体无 categoryName 字段，前端回显） */
+function getCategoryName(categoryId: any): string {
+  if (!categoryId) return "-";
+  const target = categoryList.value.find((c) => c.id === categoryId);
+  return target?.name || "-";
+}
 
 /** 上传前校验并上传 */
 function beforeUpload(file: File) {
@@ -371,13 +413,15 @@ function handleRemoveImage() {
   formData.image = undefined;
 }
 
-/** 加载分类列表 */
+/** 加载分类列表（type=1 菜品分类）。后端 CategoryController 仅提供 /listByPage 接口，无 /list */
 function loadCategories() {
-  listCategory(1).then((res: any) => {
-    if (res?.code === 200) {
-      categoryList.value = res.data || [];
-    }
-  });
+  listCategoryByPage({ current: 1, pageSize: 1000, type: 1 }).then(
+    (res: any) => {
+      if (res?.code === 200) {
+        categoryList.value = res.data?.records || [];
+      }
+    },
+  );
 }
 
 /** 搜索 */
@@ -400,7 +444,7 @@ function resetSearch() {
     categoryId: undefined,
     status: undefined,
   });
-  pager.page = 1;
+  pager.current = 1;
   handleSearch();
 }
 
@@ -409,6 +453,8 @@ function handleAdd() {
   Object.assign(formData, {
     name: undefined,
     categoryId: undefined,
+    code: undefined,
+    sort: 0,
     price: 0,
     image: undefined,
     description: undefined,
@@ -418,11 +464,36 @@ function handleAdd() {
   dialogVisible.value = true;
 }
 
-/** 编辑 */
+/** 添加口味行 */
+function handleAddFlavor() {
+  flavorList.value.push({ name: "", value: [] });
+}
+
+/** 编辑：调用 getById 获取含口味与分类名的完整 DishDTO（listByPage 不返回 flavors） */
 function handleEdit(row: Record<string, any>) {
-  Object.assign(formData, { ...row });
-  flavorList.value = row.flavors || [];
-  dialogVisible.value = true;
+  getDishById({ id: row.id }).then((res: any) => {
+    if (res?.code !== 200) return;
+    const detail = res.data || {};
+    Object.assign(formData, { ...detail });
+    // DishFlavor.value 后端存储为 JSON 字符串，编辑时解析为数组以供 el-input-tag 使用
+    flavorList.value = (detail.flavors || []).map((f: any) => ({
+      name: f.name || "",
+      value: parseFlavorValue(f.value),
+    }));
+    dialogVisible.value = true;
+  });
+}
+
+/** 将 DishFlavor.value（JSON 字符串）解析为标签数组 */
+function parseFlavorValue(value: any): string[] {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }
 
 /** 提交 */
@@ -433,7 +504,15 @@ async function handleSubmit() {
     return;
   }
 
-  const data = { ...formData, flavors: flavorList.value };
+  // 口味字段对齐 DishFlavor 实体：name、value（标签数组序列化为 JSON 字符串）；dishId 由后端设置
+  const flavors = flavorList.value
+    .filter((f) => f.name.trim() && f.value.length)
+    .map((f) => ({
+      name: f.name.trim(),
+      value: JSON.stringify(f.value),
+    }));
+
+  const data = { ...formData, flavors };
   const api = formData.id ? updateDish : createDish;
   const msg = formData.id ? "修改成功" : "新增成功";
   api(data).then((res: any) => {
@@ -462,6 +541,24 @@ function handleStatusChange(row: Record<string, any>) {
           }
         })
         .catch(() => {});
+    })
+    .catch(() => {});
+}
+
+/** 删除单条 */
+function handleDelete(row: Record<string, any>) {
+  ElMessageBox.confirm(`确定要删除菜品「${row.name}」吗？`, "提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      deleteDishById(row.id).then((res: any) => {
+        if (res?.code === 200) {
+          ElMessage.success("删除成功");
+          handleSearch();
+        }
+      });
     })
     .catch(() => {});
 }

@@ -159,7 +159,7 @@ public class EmployeeController {
 
 
   @PostMapping("/batchDelete")
-  public Result<Employee> deleteBatch(@RequestBody List<Long> ids) {
+  public Result<String> batchDelete(@RequestBody List<Long> ids) {
     boolean isOk = employeeService.removeByIds(ids);
     if (isOk) {
       return Result.success("删除成功");
@@ -168,7 +168,7 @@ public class EmployeeController {
   }
 
   @DeleteMapping("/delete/{id}")
-  public Result<Employee> delete(@PathVariable Long id) {
+  public Result<String> delete(@PathVariable Long id) {
     boolean isOk = employeeService.removeById(id);
     if (isOk) {
       return Result.success("删除成功");
