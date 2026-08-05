@@ -26,6 +26,7 @@ public class Dish  extends Base{
   private String description;
   // 状态 0:禁用 1:正常
   private Integer status;
+  @JsonFormat(shape =  JsonFormat.Shape.STRING)
   private Long categoryId;
 
 }

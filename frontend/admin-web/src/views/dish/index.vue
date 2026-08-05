@@ -87,10 +87,10 @@
           <template #default="{ row }">
             <el-image
               v-if="row.image"
-              :src="row.image"
+              :src="getFileUrl(row.image)"
               style="width: 50px; height: 50px; border-radius: 6px"
               fit="cover"
-              :preview-src-list="[row.image]"
+              :preview-src-list="[getFileUrl(row.image)]"
             />
             <span v-else class="text-muted">-</span>
           </template>
@@ -221,12 +221,17 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="售价" prop="price">
-              <el-input-number
-                v-model="formData.price"
-                :min="0"
-                :precision="2"
-                style="width: 100%"
-              />
+              <div class="price-input">
+                <el-input-number
+                  v-model="formData.price"
+                  :min="0"
+                  :precision="2"
+                  :step="0.1"
+                  controls-position="right"
+                  class="price-input-number"
+                />
+                <span class="price-suffix">元</span>
+              </div>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -242,7 +247,7 @@
           <div class="image-upload-wrapper">
             <!-- 无图：显示上传触发器 -->
             <el-upload
-              v-if="!formData.image"
+              v-if="!formData.imageUrl"
               :before-upload="beforeUpload"
               :show-file-list="false"
               accept=".jpg,.jpeg,.png"
@@ -253,10 +258,10 @@
             <div v-else class="image-preview">
               <div class="preview-img-wrapper">
                 <el-image
-                  :src="formData.image"
+                  :src="formData.imageUrl"
                   class="preview-img"
                   fit="cover"
-                  :preview-src-list="[formData.image]"
+                  :preview-src-list="[formData.imageUrl]"
                   :preview-teleported="true"
                   :z-index="3000"
                   hide-on-click-modal
@@ -279,13 +284,18 @@
               :key="index"
               class="flavor-item"
             >
-              <el-input
+              <el-select
                 v-model="flavor.name"
-                placeholder="口味名称"
-                maxlength="4"
-                show-word-limit
+                placeholder="请选择口味"
                 style="width: 160px"
-              />
+              >
+                <el-option
+                  v-for="item in FLAVOR_TYPE_OPTIONS"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
               <el-input-tag
                 v-model="flavor.value"
                 placeholder="输入标签后回车"
@@ -347,6 +357,7 @@ import {
 import { listCategoryByPage } from "@/api/category";
 import { uploadFile } from "@/api/auth";
 import { getFileUrl } from "@/utils";
+import { FLAVOR_TYPE_OPTIONS } from "@/constants/dish";
 
 /** 口味表单项：name 对应 DishFlavor.name；value 为标签数组，提交时序列化为 JSON 字符串存入 DishFlavor.value */
 interface FlavorItem {
@@ -402,7 +413,8 @@ function beforeUpload(file: File) {
   postData.append("file", file);
   uploadFile(postData).then((res: any) => {
     if (res?.code === 200) {
-      formData.image = getFileUrl(res.data.id);
+      formData.imageUrl = getFileUrl(res.data.id);
+      formData.image = res.data.id;
     }
   });
   return false;
@@ -411,6 +423,7 @@ function beforeUpload(file: File) {
 /** 删除已上传图片 */
 function handleRemoveImage() {
   formData.image = undefined;
+  formData.imageUrl = undefined;
 }
 
 /** 加载分类列表（type=1 菜品分类）。后端 CategoryController 仅提供 /listByPage 接口，无 /list */
@@ -457,6 +470,7 @@ function handleAdd() {
     sort: 0,
     price: 0,
     image: undefined,
+    imageUrl: undefined,
     description: undefined,
     status: 1,
   });
@@ -686,6 +700,36 @@ onMounted(() => {
 .upload-icon:hover {
   border-color: #409eff;
   color: #409eff;
+}
+
+/* 售价输入框（带「元」后缀） */
+.price-input {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.price-input-number {
+  flex: 1;
+}
+
+.price-input-number :deep(.el-input__wrapper),
+.price-input-number :deep(.el-input-number) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.price-suffix {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 14px;
+  background: #fafafa;
+  border: 1px solid #dcdfe6;
+  border-left: none;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  color: #606266;
+  font-size: 14px;
 }
 
 .image-upload-wrapper {

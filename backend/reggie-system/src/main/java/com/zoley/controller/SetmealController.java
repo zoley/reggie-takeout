@@ -1,6 +1,7 @@
 package com.zoley.controller;
 
 import com.zoley.common.result.Result;
+import com.zoley.entity.Dish;
 import com.zoley.entity.Setmeal;
 import com.zoley.service.DishService;
 import com.zoley.service.SetmealService;
@@ -29,6 +30,8 @@ public class SetmealController {
   @PostMapping("/listByPage")
   public Result<List<Setmeal>> listByPage(@RequestBody Setmeal setmeal){
     List<Setmeal> list = setmealService.list();
+
+    // dishLambdaQueryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
     return Result.success(list);
   }
 }

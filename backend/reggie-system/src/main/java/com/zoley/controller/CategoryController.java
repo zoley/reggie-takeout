@@ -39,7 +39,7 @@ public class CategoryController {
     LambdaQueryWrapper<Category> categoryLambdaQueryWrapper = new LambdaQueryWrapper<>();
     categoryLambdaQueryWrapper.like(StringUtils.hasText(name), Category::getName, name);
     categoryLambdaQueryWrapper.eq(type != null, Category::getType, type);
-    categoryLambdaQueryWrapper.orderByAsc(Category::getSort);
+    categoryLambdaQueryWrapper.orderByAsc(Category::getSort).orderByDesc(Category::getUpdateTime);
     Page<Category> page = new Page<>(categorySearch.getCurrent(), categorySearch.getPageSize());
     Page<Category> pageResult = categoryService.page(page, categoryLambdaQueryWrapper);
     return Result.success(pageResult);

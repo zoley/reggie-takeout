@@ -1,5 +1,6 @@
 package com.zoley.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -21,5 +22,6 @@ public class Setmeal  extends Base{
   private String image;
   private String description;
   private Integer status;
+  @JsonFormat(shape =  JsonFormat.Shape.STRING)
   private Long categoryId;
 }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zoley.common.result.Result;
 import com.zoley.dto.DishDTO;
+import com.zoley.entity.Category;
 import com.zoley.entity.Dish;
 import com.zoley.entity.Employee;
 import com.zoley.entity.search.DishSearch;
@@ -41,6 +42,7 @@ public class DishController {
     dishLambdaQueryWrapper.like(StringUtils.hasText(name), Dish::getName, name);
     dishLambdaQueryWrapper.eq(categoryId != null, Dish::getCategoryId, categoryId);
     dishLambdaQueryWrapper.eq(status != null, Dish::getStatus, status);
+    dishLambdaQueryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
     Page<Dish> page = new Page<>(dishSearch.getCurrent(), dishSearch.getPageSize());
     Page<Dish> pageResult = dishService.page(page, dishLambdaQueryWrapper);
     return Result.success(pageResult);
