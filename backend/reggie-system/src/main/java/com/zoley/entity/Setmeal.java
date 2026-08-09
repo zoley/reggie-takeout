@@ -18,6 +18,7 @@ import lombok.EqualsAndHashCode;
 public class Setmeal  extends Base{
   private String name;
   private String code;
+  private Integer sort;
   private Double price;
   private String image;
   private String description;
