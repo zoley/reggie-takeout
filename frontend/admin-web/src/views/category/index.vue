@@ -10,6 +10,7 @@
             placeholder="请输入分类名称"
             clearable
             style="width: 200px"
+            @keyup.enter="handleSearch"
           />
         </div>
         <div class="filter-item">

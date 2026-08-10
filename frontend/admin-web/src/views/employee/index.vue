@@ -10,6 +10,7 @@
             placeholder="请输入姓名"
             clearable
             style="width: 200px"
+            @keyup.enter="handleSearch"
           />
         </div>
         <div class="filter-actions">

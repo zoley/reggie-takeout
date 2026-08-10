@@ -33,7 +33,7 @@ export function disabledDishStatus(params: Record<string, any>) {
 
 /** 批量删除菜品 */
 export function deleteBatchDish(data: string[]) {
-  return request.post(`/dish/batchDelete`, data);
+  return request.post(`/dish/deleteBatch`, data);
 }
 
 /** 根据 ID 删除菜品 */

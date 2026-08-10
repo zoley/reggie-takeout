@@ -42,6 +42,12 @@ const routes = [
         component: () => import("../views/order/index.vue"),
         meta: { title: "订单明细", icon: "List" },
       },
+      {
+        path: "/home",
+        name: "Home",
+        component: () => import("../views/home/index.vue"),
+        meta: { title: "首页", icon: "List" },
+      },
     ],
   },
   {

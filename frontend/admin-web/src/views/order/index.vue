@@ -10,6 +10,7 @@
             placeholder="请输入订单号"
             clearable
             style="width: 200px"
+            @keyup.enter="handleSearch"
           />
         </div>
         <div class="filter-item">
@@ -19,6 +20,7 @@
             placeholder="请输入收货人电话"
             clearable
             style="width: 160px"
+            @keyup.enter="handleSearch"
           />
         </div>
         <div class="filter-item">
@@ -201,11 +203,7 @@
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from "element-plus";
 import { ref, reactive, onMounted } from "vue";
-import {
-  listOrderByPage,
-  getOrderById,
-  updateOrder,
-} from "../../api/order";
+import { listOrderByPage, getOrderById, updateOrder } from "../../api/order";
 
 const loading = ref(false);
 const tableData = ref([]);

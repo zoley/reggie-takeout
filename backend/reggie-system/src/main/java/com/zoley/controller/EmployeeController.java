@@ -158,8 +158,8 @@ public class EmployeeController {
   }
 
 
-  @PostMapping("/batchDelete")
-  public Result<String> batchDelete(@RequestBody List<Long> ids) {
+  @PostMapping("/deleteBatch")
+  public Result<String> deleteBatch(@RequestBody List<Long> ids) {
     boolean isOk = employeeService.removeByIds(ids);
     if (isOk) {
       return Result.success("删除成功");

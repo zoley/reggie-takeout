@@ -1,15 +1,22 @@
 package com.zoley.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zoley.dto.SetmealDTO;
 import com.zoley.entity.Setmeal;
 
 /**
  * 类 名: SetmealService
- * 描 述: 
+ * 描 述:
  * 作 者: 主成睿
  * 创 建：2026年07月30日
  * 版 本：v1.0.0
- *
+ * <p>
  * 历 史: (版本) 作者 时间 注释
- */public interface SetmealService extends IService<Setmeal> {
+ */
+public interface SetmealService extends IService<Setmeal> {
+  boolean saveSetmealAndSeries(SetmealDTO setmealDTO);
+
+  boolean updateSetmealAndSeries(SetmealDTO setmealDTO);
+
+  SetmealDTO getSetmealAndSeriesById(Long id);
 }

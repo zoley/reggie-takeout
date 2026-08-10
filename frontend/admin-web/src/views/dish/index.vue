@@ -10,6 +10,7 @@
             placeholder="请输入菜品名称"
             clearable
             style="width: 200px"
+            @keyup.enter="handleSearch"
           />
         </div>
         <div class="filter-item">
@@ -91,7 +92,15 @@
               style="width: 50px; height: 50px; border-radius: 6px"
               fit="cover"
               :preview-src-list="[getFileUrl(row.image)]"
-            />
+            >
+              <template #error>
+                <div class="image-viewer-slot image-slot">
+                  <el-icon style="font-size: 24px; color: #999"
+                    ><Picture
+                  /></el-icon>
+                </div>
+              </template>
+            </el-image>
             <span v-else class="text-muted">-</span>
           </template>
         </el-table-column>
@@ -342,7 +351,7 @@
 
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from "element-plus";
-import { Plus, Delete, Close } from "@element-plus/icons-vue";
+import { Plus, Delete, Close, Picture } from "@element-plus/icons-vue";
 import { ref, reactive, onMounted } from "vue";
 import {
   listDishByPage,
@@ -718,7 +727,9 @@ onMounted(() => {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
-
+.el-image {
+  display: block;
+}
 .price-suffix {
   display: inline-flex;
   align-items: center;
@@ -730,6 +741,13 @@ onMounted(() => {
   border-bottom-right-radius: 4px;
   color: #606266;
   font-size: 14px;
+}
+.image-viewer-slot {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .image-upload-wrapper {

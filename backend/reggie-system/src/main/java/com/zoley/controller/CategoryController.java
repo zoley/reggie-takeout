@@ -78,7 +78,7 @@ public class CategoryController {
     }
     return Result.error("删除失败");
   }
-  @PostMapping("/batchDelete")
+  @PostMapping("/deleteBatch")
   public Result<Category> deleteBatch(@RequestBody List<Long> ids) {
     boolean isOk = categoryService.removeByIds(ids);
     if (isOk) {

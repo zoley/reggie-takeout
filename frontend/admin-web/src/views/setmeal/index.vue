@@ -10,6 +10,7 @@
             placeholder="请输入套餐名称"
             clearable
             style="width: 200px"
+            @keyup.enter="handleSearch"
           />
         </div>
         <div class="filter-item">
@@ -90,7 +91,15 @@
               :preview-teleported="true"
               :z-index="3000"
               hide-on-click-modal
-            />
+            >
+              <template #error>
+                <div class="image-viewer-slot image-slot">
+                  <el-icon style="font-size: 24px; color: #999"
+                    ><Picture
+                  /></el-icon>
+                </div>
+              </template>
+            </el-image>
             <span v-else class="text-muted">-</span>
           </template>
         </el-table-column>
@@ -432,7 +441,7 @@
 
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from "element-plus";
-import { Plus, Close } from "@element-plus/icons-vue";
+import { Plus, Close, Picture } from "@element-plus/icons-vue";
 import { ref, reactive, computed, onMounted } from "vue";
 import {
   listSetmealByPage,
@@ -657,7 +666,7 @@ function handleAdd() {
   dialogVisible.value = true;
 }
 
-/** 编辑：调用 getById 获取含菜品的完整数据（listByPage 不返回 setmealDishes） */
+/** 编辑：调用 getById 获取含菜品的完整数据（listByPage 不返回 series） */
 function handleEdit(row: Record<string, any>) {
   getSetmealById({ id: row.id }).then((res: any) => {
     if (res?.code !== 200) return;
@@ -666,7 +675,8 @@ function handleEdit(row: Record<string, any>) {
       ...detail,
       imageUrl: detail.image ? getFileUrl(detail.image) : undefined,
     });
-    setmealDishList.value = (detail.setmealDishes || []).map((d: any) => ({
+    setmealDishList.value = (detail.series || []).map((d: any) => ({
+      ...d,
       dishId: d.dishId,
       name: d.name,
       price: d.price,
@@ -690,10 +700,11 @@ async function handleSubmit(continueAdd: boolean) {
 
   const data = {
     ...formData,
-    setmealDishes: setmealDishList.value.map((d) => ({
+    series: setmealDishList.value.map((d) => ({
       dishId: d.dishId,
+      name: d.name,
+      price: d.price,
       copies: d.copies,
-      dishName: d.name,
     })),
   };
   const isEdit = !!formData.id;
@@ -874,7 +885,16 @@ onMounted(() => {
   display: flex;
   align-items: flex-start;
 }
-
+.el-image {
+  display: block;
+}
+.image-viewer-slot {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .upload-icon {
   width: 100px;
   height: 100px;

@@ -33,7 +33,7 @@ export function disabledSetmealStatus(params: Record<string, any>) {
 
 /** 批量删除套餐 */
 export function deleteBatchSetmeal(data: string[]) {
-  return request.post(`/setmeal/batchDelete`, data);
+  return request.post(`/setmeal/deleteBatch`, data);
 }
 
 /** 根据 ID 删除套餐 */

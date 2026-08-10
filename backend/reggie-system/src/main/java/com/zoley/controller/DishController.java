@@ -82,8 +82,8 @@ public class DishController {
     }
     return Result.error("删除失败");
   }
-  @PostMapping("/batchDelete")
-  public Result<String> batchDelete(@RequestBody List<Long> ids) {
+  @PostMapping("/deleteBatch")
+  public Result<String> deleteBatch(@RequestBody List<Long> ids) {
     boolean isOk  = dishService.removeByIds(ids);
     if (isOk) {
       return Result.success("删除成功");
