@@ -32,7 +32,7 @@ export function disabledEmployeeStatus(params: Record<string, any>) {
 
 /** 批量删除员工 */
 export function deleteBatchEmployee(data: string[]) {
-  return request.post(`/employee/batchDelete`, data);
+  return request.post(`/employee/deleteBatch`, data);
 }
 export function deleteEmployeeById(id: string) {
   return request.delete(`/employee/delete/${id}`);

@@ -3,6 +3,7 @@ package com.zoley.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zoley.common.result.Result;
+import com.zoley.common.result.ResultCode;
 import com.zoley.entity.Category;
 import com.zoley.entity.search.CategorySearch;
 import com.zoley.service.CategoryService;
@@ -45,6 +46,17 @@ public class CategoryController {
     return Result.success(pageResult);
   }
 
+  /**
+   * 查询分类列表（不分页，供下拉选择）
+   */
+  @GetMapping("/list")
+  public Result<List<Category>> list(@RequestParam(required = false) Integer type) {
+    LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+    queryWrapper.eq(type != null, Category::getType, type);
+    queryWrapper.orderByAsc(Category::getSort).orderByDesc(Category::getUpdateTime);
+    return Result.success(categoryService.list(queryWrapper));
+  }
+
   @PostMapping("/create")
   public Result<Category> create(@RequestBody Category category) {
     boolean flag = categoryService.save(category);
@@ -56,6 +68,9 @@ public class CategoryController {
 
   @PutMapping("/update")
   public Result<Category> update(@RequestBody Category category) {
+    if (category.getId() == null) {
+      return Result.error(ResultCode.CODE_422, "分类ID不能为空");
+    }
     boolean flag = categoryService.updateById(category);
     if (flag) {
       return Result.success("更新成功", category);

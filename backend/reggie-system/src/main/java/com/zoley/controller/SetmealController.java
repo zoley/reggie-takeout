@@ -3,11 +3,10 @@ package com.zoley.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zoley.common.result.Result;
+import com.zoley.common.result.ResultCode;
 import com.zoley.dto.SetmealDTO;
-import com.zoley.entity.Dish;
 import com.zoley.entity.Setmeal;
 import com.zoley.entity.search.SetmealSearch;
-import com.zoley.service.DishService;
 import com.zoley.service.SetmealService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
@@ -51,8 +50,13 @@ public class SetmealController {
   }
   @PutMapping("/update")
   public Result<SetmealDTO> update(@RequestBody SetmealDTO setmealDTO) {
+    if (setmealDTO.getId() == null) {
+      return Result.error(ResultCode.CODE_422, "套餐ID不能为空");
+    }
+    // 禁止通过通用更新接口修改状态（有专门的启停售接口）
+    setmealDTO.setStatus(null);
     boolean isOk = setmealService.updateSetmealAndSeries(setmealDTO);
-    return isOk ? Result.success(setmealDTO) : Result.error("新增失败");
+    return isOk ? Result.success(setmealDTO) : Result.error("更新失败");
   }
 
   @GetMapping("/getById")

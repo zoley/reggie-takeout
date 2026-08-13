@@ -3,6 +3,7 @@ package com.zoley.entity;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ public class Base {
    */
   @TableField(fill = FieldFill.INSERT)
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private LocalDateTime createTime;
 
   /**
@@ -32,6 +34,7 @@ public class Base {
    */
   @TableField(fill = FieldFill.INSERT_UPDATE)
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private LocalDateTime updateTime;
 
   /**
@@ -39,6 +42,7 @@ public class Base {
    */
   @TableField(fill = FieldFill.INSERT)
   @JsonFormat(shape = JsonFormat.Shape.STRING)
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Long createUser;
 
   /**
@@ -46,6 +50,7 @@ public class Base {
    */
   @TableField(fill = FieldFill.INSERT_UPDATE)
   @JsonFormat(shape = JsonFormat.Shape.STRING)
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Long updateUser;
 
 }

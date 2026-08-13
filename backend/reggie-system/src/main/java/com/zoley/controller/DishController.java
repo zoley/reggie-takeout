@@ -4,10 +4,9 @@ package com.zoley.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zoley.common.result.Result;
+import com.zoley.common.result.ResultCode;
 import com.zoley.dto.DishDTO;
-import com.zoley.entity.Category;
 import com.zoley.entity.Dish;
-import com.zoley.entity.Employee;
 import com.zoley.entity.search.DishSearch;
 import com.zoley.service.DishService;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +58,11 @@ public class DishController {
 
   @PutMapping("/update")
   public Result<Dish> update(@RequestBody DishDTO dishDTO) {
+    if (dishDTO.getId() == null) {
+      return Result.error(ResultCode.CODE_422, "菜品ID不能为空");
+    }
+    // 禁止通过通用更新接口修改状态（有专门的启停售接口）
+    dishDTO.setStatus(null);
     boolean isOk = dishService.updateDishAndFlavor(dishDTO);
     if (isOk) {
       return Result.success("更新成功", dishDTO);
