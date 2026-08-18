@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
         msg = ResultCode.CODE_422.getMsg();
       }
     }
-    return Result.error(msg);
+    return Result.error(ResultCode.CODE_422,msg);
   }
   /**
    * 自定义执行异常
