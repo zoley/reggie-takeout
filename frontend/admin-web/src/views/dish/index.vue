@@ -135,7 +135,7 @@
           label="最后操作时间"
           min-width="170"
         />
-        <el-table-column label="操作" width="200" fixed="right" align="center">
+        <el-table-column label="操作" width="180" fixed="right" align="left">
           <template #default="{ row }">
             <el-button type="primary" size="small" link @click="handleEdit(row)"
               >修改
@@ -182,165 +182,173 @@
       :close-on-click-modal="false"
       destroy-on-close
     >
-      <el-form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        label-width="90px"
-      >
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="菜品名称" prop="name">
-              <el-input v-model="formData.name" placeholder="请输入菜品名称" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="菜品分类" prop="categoryId">
-              <el-select
-                v-model="formData.categoryId"
-                placeholder="请选择分类"
-                style="width: 100%"
-              >
-                <el-option
-                  v-for="item in categoryList"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id"
+      <div v-loading="dialogLoading">
+        <el-form
+          ref="formRef"
+          :model="formData"
+          :rules="formRules"
+          label-width="90px"
+        >
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="菜品名称" prop="name">
+                <el-input
+                  v-model="formData.name"
+                  placeholder="请输入菜品名称"
                 />
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="菜品编码" prop="code">
-              <el-input v-model="formData.code" placeholder="请输入菜品编码" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="排序" prop="sort">
-              <el-input-number
-                v-model="formData.sort"
-                :min="0"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="售价" prop="price">
-              <div class="price-input">
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="菜品分类" prop="categoryId">
+                <el-select
+                  v-model="formData.categoryId"
+                  placeholder="请选择分类"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="item in categoryList"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="菜品编码" prop="code">
+                <el-input
+                  v-model="formData.code"
+                  placeholder="请输入菜品编码"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="排序" prop="sort">
                 <el-input-number
-                  v-model="formData.price"
+                  v-model="formData.sort"
                   :min="0"
-                  :precision="2"
-                  :step="0.1"
-                  controls-position="right"
-                  class="price-input-number"
+                  style="width: 100%"
                 />
-                <span class="price-suffix">元</span>
-              </div>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="售卖状态" prop="status">
-              <el-select v-model="formData.status" style="width: 100%">
-                <el-option label="启售" :value="1" />
-                <el-option label="停售" :value="0" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-form-item label="菜品图片">
-          <div class="image-upload-wrapper">
-            <!-- 无图：显示上传触发器 -->
-            <el-upload
-              v-if="!formData.imageUrl"
-              :before-upload="beforeUpload"
-              :show-file-list="false"
-              accept=".jpg,.jpeg,.png"
-            >
-              <el-icon class="upload-icon"><Plus /></el-icon>
-            </el-upload>
-            <!-- 有图：显示预览 + 右上角删除按钮，点击图片可放大查看 -->
-            <div v-else class="image-preview">
-              <div class="preview-img-wrapper">
-                <el-image
-                  :src="formData.imageUrl"
-                  class="preview-img"
-                  fit="cover"
-                  :preview-src-list="[formData.imageUrl]"
-                  :preview-teleported="true"
-                  :z-index="3000"
-                  hide-on-click-modal
-                />
-              </div>
-              <span
-                class="delete-btn"
-                title="删除图片"
-                @click.stop="handleRemoveImage"
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="售价" prop="price">
+                <div class="price-input">
+                  <el-input-number
+                    v-model="formData.price"
+                    :min="0"
+                    :precision="2"
+                    :step="0.1"
+                    controls-position="right"
+                    class="price-input-number"
+                  />
+                  <span class="price-suffix">元</span>
+                </div>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="售卖状态" prop="status">
+                <el-select v-model="formData.status" style="width: 100%">
+                  <el-option label="启售" :value="1" />
+                  <el-option label="停售" :value="0" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-form-item label="菜品图片">
+            <div class="image-upload-wrapper">
+              <!-- 无图：显示上传触发器 -->
+              <el-upload
+                v-if="!formData.imageUrl"
+                :before-upload="beforeUpload"
+                :show-file-list="false"
+                accept=".jpg,.jpeg,.png"
               >
-                <el-icon><Close /></el-icon>
-              </span>
+                <el-icon class="upload-icon"><Plus /></el-icon>
+              </el-upload>
+              <!-- 有图：显示预览 + 右上角删除按钮，点击图片可放大查看 -->
+              <div v-else class="image-preview">
+                <div class="preview-img-wrapper">
+                  <el-image
+                    :src="formData.imageUrl"
+                    class="preview-img"
+                    fit="cover"
+                    :preview-src-list="[formData.imageUrl]"
+                    :preview-teleported="true"
+                    :z-index="3000"
+                    hide-on-click-modal
+                  />
+                </div>
+                <span
+                  class="delete-btn"
+                  title="删除图片"
+                  @click.stop="handleRemoveImage"
+                >
+                  <el-icon><Close /></el-icon>
+                </span>
+              </div>
             </div>
-          </div>
-        </el-form-item>
-        <el-form-item label="口味配置">
-          <div class="flavor-section">
-            <div
-              v-for="(flavor, index) in flavorList"
-              :key="index"
-              class="flavor-item"
-            >
-              <el-select
-                v-model="flavor.name"
-                placeholder="请选择口味"
-                style="width: 160px"
+          </el-form-item>
+          <el-form-item label="口味配置">
+            <div class="flavor-section">
+              <div
+                v-for="(flavor, index) in flavorList"
+                :key="index"
+                class="flavor-item"
               >
-                <el-option
-                  v-for="item in FLAVOR_TYPE_OPTIONS"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
+                <el-select
+                  v-model="flavor.name"
+                  placeholder="请选择口味"
+                  style="width: 160px"
+                >
+                  <el-option
+                    v-for="item in FLAVOR_TYPE_OPTIONS"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+                <el-input-tag
+                  v-model="flavor.value"
+                  placeholder="输入标签后回车"
+                  :max="10"
+                  style="flex: 1"
                 />
-              </el-select>
-              <el-input-tag
-                v-model="flavor.value"
-                placeholder="输入标签后回车"
-                :max="10"
-                style="flex: 1"
-              />
+                <el-button
+                  type="danger"
+                  size="small"
+                  circle
+                  @click="flavorList.splice(index, 1)"
+                >
+                  <el-icon>
+                    <Delete />
+                  </el-icon>
+                </el-button>
+              </div>
               <el-button
-                type="danger"
                 size="small"
-                circle
-                @click="flavorList.splice(index, 1)"
+                type="primary"
+                plain
+                @click="handleAddFlavor"
               >
-                <el-icon>
-                  <Delete />
-                </el-icon>
+                + 添加口味
               </el-button>
             </div>
-            <el-button
-              size="small"
-              type="primary"
-              plain
-              @click="handleAddFlavor"
-            >
-              + 添加口味
-            </el-button>
-          </div>
-        </el-form-item>
-        <el-form-item label="菜品描述">
-          <el-input
-            v-model="formData.description"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入菜品描述"
-          />
-        </el-form-item>
-      </el-form>
+          </el-form-item>
+          <el-form-item label="菜品描述">
+            <el-input
+              v-model="formData.description"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入菜品描述"
+            />
+          </el-form-item>
+        </el-form>
+      </div>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" @click="handleSubmit">确定</el-button>
@@ -379,6 +387,7 @@ const tableData = ref<any[]>([]);
 const categoryList = ref<any[]>([]);
 const total = ref(0);
 const dialogVisible = ref(false);
+const dialogLoading = ref(false);
 const formRef = ref();
 const selectedIds = ref<number[]>([]);
 
@@ -492,19 +501,34 @@ function handleAddFlavor() {
   flavorList.value.push({ name: "", value: [] });
 }
 
-/** 编辑：调用 getById 获取含口味与分类名的完整 DishDTO（listByPage 不返回 flavors） */
+/** 编辑：先打开弹窗，再请求详情并展示 loading */
 function handleEdit(row: Record<string, any>) {
-  getDishById({ id: row.id }).then((res: any) => {
-    if (res?.code !== 200) return;
-    const detail = res.data || {};
-    Object.assign(formData, { ...detail });
-    // DishFlavor.value 后端存储为 JSON 字符串，编辑时解析为数组以供 el-input-tag 使用
-    flavorList.value = (detail.flavors || []).map((f: any) => ({
-      name: f.name || "",
-      value: parseFlavorValue(f.value),
-    }));
-    dialogVisible.value = true;
+  Object.assign(formData, {
+    name: undefined,
+    categoryId: undefined,
+    code: undefined,
+    sort: 0,
+    price: 0,
+    image: undefined,
+    imageUrl: undefined,
+    description: undefined,
+    status: 1,
   });
+  flavorList.value = [];
+  dialogVisible.value = true;
+  dialogLoading.value = true;
+  getDishById({ id: row.id })
+    .then((res: any) => {
+      if (res?.code !== 200) return;
+      const detail = res.data || {};
+      Object.assign(formData, { ...detail });
+      // DishFlavor.value 后端存储为 JSON 字符串，编辑时解析为数组以供 el-input-tag 使用
+      flavorList.value = (detail.flavors || []).map((f: any) => ({
+        name: f.name || "",
+        value: parseFlavorValue(f.value),
+      }));
+    })
+    .finally(() => (dialogLoading.value = false));
 }
 
 /** 将 DishFlavor.value（JSON 字符串）解析为标签数组 */

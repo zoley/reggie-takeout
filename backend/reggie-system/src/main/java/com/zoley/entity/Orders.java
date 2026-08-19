@@ -23,9 +23,8 @@ public class Orders {
   @JsonFormat(shape = JsonFormat.Shape.STRING)
   private Long id;
   //订单号
-  @JsonFormat(shape = JsonFormat.Shape.STRING)
-  private Long number;
-  // 1=待付款 2=待收货 3=待评价 4=退款/售后 0=全部
+  private String number;
+  // 1=待付款 2=待收货 3=待评价 4=退款/售后 null/0=全部 5=已完成 6=已取消
   private Integer status;
   @JsonFormat(shape = JsonFormat.Shape.STRING)
   private Long userId;

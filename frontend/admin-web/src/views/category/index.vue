@@ -71,7 +71,7 @@
         </el-table-column>
         <el-table-column prop="sort" label="排序" width="100" align="center" />
         <el-table-column prop="updateTime" label="操作时间" min-width="170" />
-        <el-table-column label="操作" width="160" fixed="right" align="center">
+        <el-table-column label="操作" width="120" fixed="right" align="left">
           <template #default="{ row }">
             <el-button type="primary" size="small" link @click="handleEdit(row)"
               >编辑</el-button

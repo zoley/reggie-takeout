@@ -11,7 +11,12 @@ export function getOrderById(params: Record<string, any>) {
   return request.get(`/order/getById`, { params });
 }
 
-/** 修改订单 */
-export function updateOrder(data: any) {
-  return request.put("/order/update", data);
+/** 完成订单 */
+export function completeOrder(id: number | string) {
+  return request.get(`/order/done/${id}`);
+}
+
+/** 取消订单 */
+export function cancelOrder(id: number | string) {
+  return request.get(`/order/cancel/${id}`);
 }

@@ -31,11 +31,12 @@
             clearable
             style="width: 130px"
           >
-            <el-option label="待付款" :value="1" />
-            <el-option label="待接单" :value="2" />
-            <el-option label="配送中" :value="3" />
-            <el-option label="已完成" :value="4" />
-            <el-option label="已取消" :value="5" />
+            <el-option
+              v-for="item in ORDER_STATUS_OPTIONS"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
           </el-select>
         </div>
         <div class="filter-actions">
@@ -99,7 +100,7 @@
           min-width="180"
           show-overflow-tooltip
         />
-        <el-table-column label="操作" width="180" fixed="right" align="center">
+        <el-table-column label="操作" width="150" fixed="right" align="left">
           <template #default="{ row }">
             <el-button
               type="primary"
@@ -109,7 +110,7 @@
               >详情</el-button
             >
             <el-button
-              v-if="row.status === 3"
+              v-if="row.status === 2"
               type="success"
               size="small"
               link
@@ -131,7 +132,7 @@
       <!-- 分页 -->
       <div class="pagination-bar">
         <el-pagination
-          v-model:current-page="pager.page"
+          v-model:current-page="pager.current"
           v-model:page-size="pager.pageSize"
           :total="total"
           :page-sizes="[10, 20, 50, 100]"
@@ -150,52 +151,58 @@
       width="720px"
       destroy-on-close
     >
-      <el-descriptions :column="2" border>
-        <el-descriptions-item label="订单号">{{
-          detailData.number
-        }}</el-descriptions-item>
-        <el-descriptions-item label="下单时间">{{
-          detailData.orderTime
-        }}</el-descriptions-item>
-        <el-descriptions-item label="订单状态">
-          <el-tag :type="statusTagType(detailData.status)" effect="light" round>
-            {{ statusText(detailData.status) }}
-          </el-tag>
-        </el-descriptions-item>
-        <el-descriptions-item label="订单金额">
-          <span class="price-text">¥{{ detailData.amount }}</span>
-        </el-descriptions-item>
-        <el-descriptions-item label="收货人">{{
-          detailData.consignee
-        }}</el-descriptions-item>
-        <el-descriptions-item label="联系电话">{{
-          detailData.phone
-        }}</el-descriptions-item>
-        <el-descriptions-item label="收货地址" :span="2">{{
-          detailData.address
-        }}</el-descriptions-item>
-        <el-descriptions-item label="备注" :span="2">{{
-          detailData.remark || "无"
-        }}</el-descriptions-item>
-      </el-descriptions>
+      <div v-loading="detailLoading">
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="订单号">{{
+            detailData.number
+          }}</el-descriptions-item>
+          <el-descriptions-item label="下单时间">{{
+            detailData.orderTime
+          }}</el-descriptions-item>
+          <el-descriptions-item label="订单状态">
+            <el-tag
+              :type="statusTagType(detailData.status)"
+              effect="light"
+              round
+            >
+              {{ statusText(detailData.status) }}
+            </el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="订单金额">
+            <span class="price-text">¥{{ detailData.amount }}</span>
+          </el-descriptions-item>
+          <el-descriptions-item label="收货人">{{
+            detailData.consignee
+          }}</el-descriptions-item>
+          <el-descriptions-item label="联系电话">{{
+            detailData.phone
+          }}</el-descriptions-item>
+          <el-descriptions-item label="收货地址" :span="2">{{
+            detailData.address
+          }}</el-descriptions-item>
+          <el-descriptions-item label="备注" :span="2">{{
+            detailData.remark || "无"
+          }}</el-descriptions-item>
+        </el-descriptions>
 
-      <h4 style="margin: 16px 0 8px">订单明细</h4>
-      <el-table
-        :data="detailData.orderDetails || []"
-        size="small"
-        stripe
-        :header-cell-style="{
-          background: '#fafafa',
-          color: '#333',
-          fontWeight: 600,
-        }"
-      >
-        <el-table-column prop="name" label="名称" min-width="140" />
-        <el-table-column prop="number" label="数量" width="70" />
-        <el-table-column prop="amount" label="单价" width="80">
-          <template #default="{ row }">¥{{ row.amount }}</template>
-        </el-table-column>
-      </el-table>
+        <h4 style="margin: 16px 0 8px">订单明细</h4>
+        <el-table
+          :data="detailData.orderDetails || []"
+          size="small"
+          stripe
+          :header-cell-style="{
+            background: '#fafafa',
+            color: '#333',
+            fontWeight: 600,
+          }"
+        >
+          <el-table-column prop="name" label="名称" min-width="140" />
+          <el-table-column prop="number" label="数量" width="70" />
+          <el-table-column prop="amount" label="单价" width="80">
+            <template #default="{ row }">¥{{ row.amount }}</template>
+          </el-table-column>
+        </el-table>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -203,15 +210,26 @@
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from "element-plus";
 import { ref, reactive, onMounted } from "vue";
-import { listOrderByPage, getOrderById, updateOrder } from "../../api/order";
+import {
+  listOrderByPage,
+  getOrderById,
+  completeOrder,
+  cancelOrder,
+} from "@/api/order";
+import {
+  ORDER_STATUS_OPTIONS,
+  ORDER_STATUS_TEXT,
+  ORDER_STATUS_TAG_TYPE,
+} from "@/constants/order";
 
 const loading = ref(false);
 const tableData = ref([]);
 const total = ref(0);
 const detailVisible = ref(false);
+const detailLoading = ref(false);
 const detailData = reactive<Record<string, any>>({ orderDetails: [] });
 
-const pager = reactive({ page: 1, pageSize: 10 });
+const pager = reactive({ current: 1, pageSize: 10 });
 const searchForm = reactive({
   number: "",
   phone: "",
@@ -220,32 +238,23 @@ const searchForm = reactive({
 
 /** 状态文字映射 */
 function statusText(status: number): string {
-  const map: Record<number, string> = {
-    1: "待付款",
-    2: "待接单",
-    3: "配送中",
-    4: "已完成",
-    5: "已取消",
-  };
-  return map[status] || "未知";
+  return ORDER_STATUS_TEXT[status] || "未知";
 }
 
 /** 状态标签类型 */
 function statusTagType(status: number): string {
-  const map: Record<number, string> = {
-    1: "warning",
-    2: "",
-    3: "primary",
-    4: "success",
-    5: "info",
-  };
-  return map[status] || "";
+  return ORDER_STATUS_TAG_TYPE[status] || "";
 }
 
 /** 搜索 */
 function handleSearch() {
   loading.value = true;
-  listOrderByPage({ ...pager, ...searchForm })
+  const params = { ...pager, ...searchForm };
+  // 状态选择“全部（0）”时不传过滤条件
+  if (params.status === 0) {
+    params.status = undefined;
+  }
+  listOrderByPage(params)
     .then((res: any) => {
       if (res?.code === 200) {
         tableData.value = res.data?.records || [];
@@ -258,25 +267,29 @@ function handleSearch() {
 /** 重置 */
 function resetSearch() {
   Object.assign(searchForm, { number: "", phone: "", status: undefined });
-  pager.page = 1;
+  pager.current = 1;
   handleSearch();
 }
 
 /** 查看详情 */
 function handleDetail(row: Record<string, any>) {
-  getOrderById({ id: row.id }).then((res: any) => {
-    if (res?.code === 200) {
-      Object.assign(detailData, res.data || row);
-      detailVisible.value = true;
-    }
-  });
+  Object.assign(detailData, { orderDetails: [] });
+  detailVisible.value = true;
+  detailLoading.value = true;
+  getOrderById({ id: row.id })
+    .then((res: any) => {
+      if (res?.code === 200) {
+        Object.assign(detailData, res.data || row);
+      }
+    })
+    .finally(() => (detailLoading.value = false));
 }
 
 /** 完成订单 */
 function handleComplete(row: Record<string, any>) {
   ElMessageBox.confirm("确定将该订单标记为已完成？", "提示")
     .then(() => {
-      updateOrder({ id: row.id, status: 4 }).then((res: any) => {
+      completeOrder(row.id).then((res: any) => {
         if (res?.code === 200) {
           ElMessage.success("订单已完成");
           handleSearch();
@@ -290,7 +303,7 @@ function handleComplete(row: Record<string, any>) {
 function handleCancel(row: Record<string, any>) {
   ElMessageBox.confirm("确定要取消该订单吗？", "提示")
     .then(() => {
-      updateOrder({ id: row.id, status: 5 }).then((res: any) => {
+      cancelOrder(row.id).then((res: any) => {
         if (res?.code === 200) {
           ElMessage.success("订单已取消");
           handleSearch();

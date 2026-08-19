@@ -139,7 +139,7 @@
           label="最后操作时间"
           min-width="170"
         />
-        <el-table-column label="操作" width="200" fixed="right" align="center">
+        <el-table-column label="操作" width="180" fixed="right" align="left">
           <template #default="{ row }">
             <el-button type="primary" size="small" link @click="handleEdit(row)"
               >修改</el-button
@@ -187,175 +187,177 @@
       destroy-on-close
       class="setmeal-dialog"
     >
-      <el-form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        label-width="100px"
-        class="setmeal-form"
-      >
-        <el-row :gutter="24">
-          <el-col :span="12">
-            <el-form-item label="套餐名称" prop="name">
-              <el-input
-                v-model="formData.name"
-                placeholder="请填写套餐名称"
-                clearable
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="套餐分类" prop="categoryId">
-              <el-select
-                v-model="formData.categoryId"
-                placeholder="请选择套餐分类"
-                style="width: 100%"
-              >
-                <el-option
-                  v-for="item in categoryList"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id"
+      <div v-loading="dialogLoading">
+        <el-form
+          ref="formRef"
+          :model="formData"
+          :rules="formRules"
+          label-width="100px"
+          class="setmeal-form"
+        >
+          <el-row :gutter="24">
+            <el-col :span="12">
+              <el-form-item label="套餐名称" prop="name">
+                <el-input
+                  v-model="formData.name"
+                  placeholder="请填写套餐名称"
+                  clearable
                 />
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row :gutter="24">
-          <el-col :span="12">
-            <el-form-item label="套餐价格" prop="price">
-              <div class="price-input">
-                <el-input-number
-                  v-model="formData.price"
-                  :min="0"
-                  :precision="2"
-                  :step="0.1"
-                  controls-position="right"
-                  class="price-input-number"
-                />
-                <span class="price-suffix">元</span>
-              </div>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="售卖状态" prop="status">
-              <el-select
-                v-model="formData.status"
-                placeholder="请选择"
-                style="width: 100%"
-              >
-                <el-option label="启售" :value="1" />
-                <el-option label="停售" :value="0" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-form-item label="套餐图片">
-          <div class="image-upload-wrapper">
-            <!-- 无图：显示上传触发器 -->
-            <el-upload
-              v-if="!formData.imageUrl"
-              :before-upload="beforeUpload"
-              :show-file-list="false"
-              accept=".jpg,.jpeg,.png"
-            >
-              <el-icon class="upload-icon"><Plus /></el-icon>
-            </el-upload>
-            <!-- 有图：显示预览 + 右上角删除按钮 -->
-            <div v-else class="image-preview">
-              <div class="preview-img-wrapper">
-                <el-image
-                  :src="formData.imageUrl"
-                  class="preview-img"
-                  fit="cover"
-                  :preview-src-list="[formData.imageUrl]"
-                  :preview-teleported="true"
-                  :z-index="3000"
-                  hide-on-click-modal
-                />
-              </div>
-              <span
-                class="delete-btn"
-                title="删除图片"
-                @click.stop="handleRemoveImage"
-              >
-                <el-icon><Close /></el-icon>
-              </span>
-            </div>
-          </div>
-        </el-form-item>
-
-        <el-form-item label="套餐菜品">
-          <div class="dish-card">
-            <div class="dish-card-toolbar">
-              <el-button
-                size="small"
-                type="warning"
-                class="add-dish-btn"
-                @click="openDishPicker"
-              >
-                <el-icon style="margin-right: 4px"><Plus /></el-icon>
-                添加菜品
-              </el-button>
-            </div>
-            <el-table
-              :data="setmealDishList"
-              size="small"
-              class="dish-table"
-              empty-text="暂未添加菜品"
-            >
-              <el-table-column prop="name" label="名称" min-width="140" />
-              <el-table-column
-                prop="price"
-                label="原价"
-                width="120"
-                align="center"
-              >
-                <template #default="{ row }">
-                  <span class="dish-price">¥{{ row.price }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column label="份数" width="200" align="center">
-                <template #default="{ row }">
-                  <el-input-number
-                    v-model="row.copies"
-                    :min="1"
-                    :max="99"
-                    controls-position="both"
-                    class="copies-input"
-                    size="small"
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="套餐分类" prop="categoryId">
+                <el-select
+                  v-model="formData.categoryId"
+                  placeholder="请选择套餐分类"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="item in categoryList"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"
                   />
-                </template>
-              </el-table-column>
-              <el-table-column label="操作" width="80" align="center">
-                <template #default="{ $index }">
-                  <el-button
-                    type="warning"
-                    size="small"
-                    link
-                    @click="setmealDishList.splice($index, 1)"
-                  >
-                    删除
-                  </el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </div>
-        </el-form-item>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
 
-        <el-form-item label="套餐描述">
-          <el-input
-            v-model="formData.description"
-            type="textarea"
-            :rows="3"
-            placeholder="套餐描述，最长200字"
-            maxlength="200"
-            show-word-limit
-          />
-        </el-form-item>
-      </el-form>
+          <el-row :gutter="24">
+            <el-col :span="12">
+              <el-form-item label="套餐价格" prop="price">
+                <div class="price-input">
+                  <el-input-number
+                    v-model="formData.price"
+                    :min="0"
+                    :precision="2"
+                    :step="0.1"
+                    controls-position="right"
+                    class="price-input-number"
+                  />
+                  <span class="price-suffix">元</span>
+                </div>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="售卖状态" prop="status">
+                <el-select
+                  v-model="formData.status"
+                  placeholder="请选择"
+                  style="width: 100%"
+                >
+                  <el-option label="启售" :value="1" />
+                  <el-option label="停售" :value="0" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-form-item label="套餐图片">
+            <div class="image-upload-wrapper">
+              <!-- 无图：显示上传触发器 -->
+              <el-upload
+                v-if="!formData.imageUrl"
+                :before-upload="beforeUpload"
+                :show-file-list="false"
+                accept=".jpg,.jpeg,.png"
+              >
+                <el-icon class="upload-icon"><Plus /></el-icon>
+              </el-upload>
+              <!-- 有图：显示预览 + 右上角删除按钮 -->
+              <div v-else class="image-preview">
+                <div class="preview-img-wrapper">
+                  <el-image
+                    :src="formData.imageUrl"
+                    class="preview-img"
+                    fit="cover"
+                    :preview-src-list="[formData.imageUrl]"
+                    :preview-teleported="true"
+                    :z-index="3000"
+                    hide-on-click-modal
+                  />
+                </div>
+                <span
+                  class="delete-btn"
+                  title="删除图片"
+                  @click.stop="handleRemoveImage"
+                >
+                  <el-icon><Close /></el-icon>
+                </span>
+              </div>
+            </div>
+          </el-form-item>
+
+          <el-form-item label="套餐菜品">
+            <div class="dish-card">
+              <div class="dish-card-toolbar">
+                <el-button
+                  size="small"
+                  type="warning"
+                  class="add-dish-btn"
+                  @click="openDishPicker"
+                >
+                  <el-icon style="margin-right: 4px"><Plus /></el-icon>
+                  添加菜品
+                </el-button>
+              </div>
+              <el-table
+                :data="setmealDishList"
+                size="small"
+                class="dish-table"
+                empty-text="暂未添加菜品"
+              >
+                <el-table-column prop="name" label="名称" min-width="140" />
+                <el-table-column
+                  prop="price"
+                  label="原价"
+                  width="120"
+                  align="center"
+                >
+                  <template #default="{ row }">
+                    <span class="dish-price">¥{{ row.price }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column label="份数" width="200" align="center">
+                  <template #default="{ row }">
+                    <el-input-number
+                      v-model="row.copies"
+                      :min="1"
+                      :max="99"
+                      controls-position="both"
+                      class="copies-input"
+                      size="small"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作" width="80" align="center">
+                  <template #default="{ $index }">
+                    <el-button
+                      type="warning"
+                      size="small"
+                      link
+                      @click="setmealDishList.splice($index, 1)"
+                    >
+                      删除
+                    </el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </el-form-item>
+
+          <el-form-item label="套餐描述">
+            <el-input
+              v-model="formData.description"
+              type="textarea"
+              :rows="3"
+              placeholder="套餐描述，最长200字"
+              maxlength="200"
+              show-word-limit
+            />
+          </el-form-item>
+        </el-form>
+      </div>
 
       <template #footer>
         <div class="dialog-footer">
@@ -465,6 +467,7 @@ const dishCategoryList = ref<any[]>([]);
 const dishAllList = ref<any[]>([]);
 const total = ref(0);
 const dialogVisible = ref(false);
+const dialogLoading = ref(false);
 const dishDialogVisible = ref(false);
 const formRef = ref();
 const selectedIds = ref<number[]>([]);
@@ -666,24 +669,28 @@ function handleAdd() {
   dialogVisible.value = true;
 }
 
-/** 编辑：调用 getById 获取含菜品的完整数据（listByPage 不返回 series） */
+/** 编辑：先打开弹窗，再请求详情并展示 loading */
 function handleEdit(row: Record<string, any>) {
-  getSetmealById({ id: row.id }).then((res: any) => {
-    if (res?.code !== 200) return;
-    const detail = res.data || {};
-    Object.assign(formData, {
-      ...detail,
-      imageUrl: detail.image ? getFileUrl(detail.image) : undefined,
-    });
-    setmealDishList.value = (detail.series || []).map((d: any) => ({
-      ...d,
-      dishId: d.dishId,
-      name: d.name,
-      price: d.price,
-      copies: d.copies ?? 1,
-    }));
-    dialogVisible.value = true;
-  });
+  resetForm();
+  dialogVisible.value = true;
+  dialogLoading.value = true;
+  getSetmealById({ id: row.id })
+    .then((res: any) => {
+      if (res?.code !== 200) return;
+      const detail = res.data || {};
+      Object.assign(formData, {
+        ...detail,
+        imageUrl: detail.image ? getFileUrl(detail.image) : undefined,
+      });
+      setmealDishList.value = (detail.series || []).map((d: any) => ({
+        ...d,
+        dishId: d.dishId,
+        name: d.name,
+        price: d.price,
+        copies: d.copies ?? 1,
+      }));
+    })
+    .finally(() => (dialogLoading.value = false));
 }
 
 /** 提交：continueAdd=true 时保存后不关闭弹窗（仅新增模式有效） */

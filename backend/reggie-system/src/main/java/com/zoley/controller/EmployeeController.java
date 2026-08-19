@@ -110,7 +110,7 @@ public class EmployeeController {
 
   }
 
-  @PostMapping("/update")
+  @PutMapping("/update")
   public Result<Employee> update(@RequestBody Employee employee) {
     boolean isOk = employeeService.updateById(employee);
     if (isOk) {

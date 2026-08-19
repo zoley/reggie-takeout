@@ -69,7 +69,7 @@
           label="最后操作时间"
           min-width="170"
         />
-        <el-table-column label="操作" width="220" fixed="right" align="center">
+        <el-table-column label="操作" width="200" fixed="right" align="left">
           <template #default="{ row }">
             <el-button type="primary" size="small" link @click="handleEdit(row)"
               >编辑</el-button
@@ -95,7 +95,7 @@
       <!-- 分页 -->
       <div class="pagination-bar">
         <el-pagination
-          v-model:current-page="pager.page"
+          v-model:current-page="pager.current"
           v-model:page-size="pager.pageSize"
           :total="total"
           :page-sizes="[10, 20, 50, 100]"
@@ -236,7 +236,7 @@ const total = ref(0);
 const dialogVisible = ref(false);
 const formRef = ref();
 
-const pager = reactive({ page: 1, pageSize: 10 });
+const pager = reactive({ current: 1, pageSize: 10 });
 const searchForm = reactive({ name: "" });
 const formData = reactive<Record<string, any>>({});
 
@@ -299,7 +299,7 @@ function handleSearch() {
 /** 重置 */
 function resetSearch() {
   searchForm.name = "";
-  pager.page = 1;
+  pager.current = 1;
   handleSearch();
 }
 
