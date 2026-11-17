@@ -91,6 +91,7 @@
               :src="getFileUrl(row.image)"
               style="width: 50px; height: 50px; border-radius: 6px"
               fit="cover"
+              preview-teleported
               :preview-src-list="[getFileUrl(row.image)]"
             >
               <template #error>

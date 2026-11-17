@@ -16,6 +16,16 @@ export function getEmployeeInfo() {
   return request.get("/employee/info");
 }
 
+/** C 端：发送短信验证码 */
+export function sendSmsCode(data: { phone: string }) {
+  return request.post("/user/sendMsg", data);
+}
+
+/** C 端：手机号验证码登录 */
+export function loginByPhone(data: { phone: string; code: string }) {
+  return request.post("/user/login", data);
+}
+
 /** 文件上传 */
 export function uploadFile(data) {
   return request.post("/common/file/upload", data);

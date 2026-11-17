@@ -14,8 +14,6 @@ class ReggieSystemApplicationTests {
 	private EmployeeService employeeService;
 	@Test
 	void contextLoads() {
-		List<Employee> list = employeeService.list();
-		System.out.println(list);
 	}
 
 }

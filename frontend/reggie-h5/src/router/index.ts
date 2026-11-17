@@ -1,6 +1,10 @@
-import { createRouter, createWebHistory } from "vue-router";
+import {
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw,
+} from "vue-router";
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     path: "/",
     name: "Layout",
@@ -26,6 +30,12 @@ const routes = [
         meta: { title: "商家" },
       },
     ],
+  },
+  {
+    path: "/login",
+    name: "login",
+    component: () => import("../views/login/index.vue"),
+    meta: { title: "登录" },
   },
   {
     path: "/:pathMatch(.*)*",
